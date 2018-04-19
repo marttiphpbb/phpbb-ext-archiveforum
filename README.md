@@ -39,7 +39,7 @@ You can install this on the latest release of phpBB 3.2 by following the steps b
 
 * Create `marttiphpbb/topictemplate` in the `ext` directory.
 * Download and unpack the repository into `ext/marttiphpbb/topictemplate`
-* Enable `Posting Template` in the ACP at `Customise -> Manage extensions`.
+* Enable `Topic Template` in the ACP at `Customise -> Manage extensions`.
 * You can start editing the Topic Template in the Forum ACP for each Forum.
 
 ## Uninstall
