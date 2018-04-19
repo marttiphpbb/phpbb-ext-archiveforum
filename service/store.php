@@ -116,6 +116,11 @@ class store
 
 		$this->load();
 
+		if (!isset($data['templates']))
+		{
+			return;
+		}
+
 		foreach ($this->data['templates'] as $forum_id => $template)
 		{
 			if (!isset($keep_forum_ids[$forum_id]))
