@@ -9,7 +9,7 @@ phpBB 3.2+ PHP 7+
 With this extension you can set a Topic Template (text) in the ACP for each forum in your board.
 Whenever someone starts a topic. The editor gets prefilled with the text that you defined.
 
-## Screeenshots
+## Screenshots
  
 **Add or Edit a forum in the ACP**
 
