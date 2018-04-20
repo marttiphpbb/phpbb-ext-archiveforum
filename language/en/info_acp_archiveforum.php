@@ -18,8 +18,6 @@ if (empty($lang) || !is_array($lang))
 
 $lang = array_merge($lang, [
 
-	'ACP_MARTTIPHPBB_ARCHIVEFORUM'						=> 'Archive Forum',
-	'ACP_MARTTIPHPBB_ARCHIVEFORUM_SELECT'				=> 'Select archive forum',
-	'ACP_MARTTIPHPBB_ARCHIVEFORUM_EXPLAIN'				=> '',
-	'ACP_MARTTIPHPBB_ARCHIVEFORUM_SETTING_SAVED'		=> 'The setting was saved.'
+	'ACP_MARTTIPHPBB_ARCHIVEFORUM'					=> 'Archive forum',
+	'ACP_MARTTIPHPBB_ARCHIVEFORUM_SELECT'			=> 'Select',
 ]);

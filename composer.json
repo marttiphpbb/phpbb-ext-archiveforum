@@ -1,8 +1,8 @@
 {
-	"name": "marttiphpbb/topictemplate",
+	"name": "marttiphpbb/archiveforum",
 	"type": "phpbb-extension",
-	"description": "Topic Template Extension for phpBB 3.2",
-	"homepage": "https://github.com/marttiphpbb/phpbb-ext-topictemplate",
+	"description": "Archive Forum Extension for phpBB 3.2",
+	"homepage": "https://github.com/marttiphpbb/phpbb-ext-archiveforum",
 	"version": "0.1.0",
 	"time": "2018-04-18",
 	"license": "GPL-2.0",
@@ -19,14 +19,14 @@
 		"phpbb/epv": "dev-master"
 	},
 	"extra": {
-		"display-name": "Topic Template",
+		"display-name": "Archive Forum",
 		"soft-require": {
 			"phpbb/phpbb": ">=3.2,<3.3"
 		},
 		"version-check": {
 			"host": "marttiphpbb.github.io",
 			"directory": "/version",
-			"filename": "topictemplate.json"
+			"filename": "archiveforum.json"
 		}
 	}
 }

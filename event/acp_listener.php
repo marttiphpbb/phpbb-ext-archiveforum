@@ -1,17 +1,17 @@
 <?php
 /**
-* phpBB Extension - marttiphpbb Topic Template
+* phpBB Extension - marttiphpbb Archive Forum
 * @copyright (c) 2015 - 2018 marttiphpbb <info@martti.be>
 * @license GNU General Public License, version 2 (GPL-2.0)
 */
 
-namespace marttiphpbb\topictemplate\event;
+namespace marttiphpbb\archiveforum\event;
 
 use phpbb\event\data as event;
 use phpbb\db\driver\factory as db;
 use phpbb\request\request;
 use phpbb\language\language;
-use marttiphpbb\topictemplate\service\store;
+use marttiphpbb\archiveforum\service\store;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -65,23 +65,7 @@ class acp_listener implements EventSubscriberInterface
 
 	public function core_acp_manage_forums_initialise_data(event $event)
 	{
-		/** 
-			because there's no php event where a form is deleted,
-			we do here cleanup of Topic Templates of deleted forums.
-			This functions runs when adding or editing a forum in ACP.
-		*/
 
-		$keep_forum_ids = [];
-	
-		$sql = 'select forum_id from ' . $this->forums_table;
-		$result = $this->db->sql_query($sql);
-		while ($forum_id = $this->db->sql_fetchfield('forum_id'))
-		{
-			$keep_forum_ids[] = $forum_id;
-		}
-		$this->db->sql_freeresult($result);
-
-		$this->store->delete_all_templates_but($keep_forum_ids);
 	}
 
 	public function core_acp_manage_forums_update_data_after(event $event)
@@ -89,7 +73,7 @@ class acp_listener implements EventSubscriberInterface
 		$forum_data = $event['forum_data'];
 		$forum_id = $forum_data['forum_id'];
 
-		$topic_template = utf8_normalize_nfc($this->request->variable('forum_marttiphpbb_topictemplate', '', true));
+		$topic_template = utf8_normalize_nfc($this->request->variable('forum_marttiphpbb_archiveforum', '', true));
 		$this->store->set_template($forum_id, $topic_template);
 	}
 
@@ -101,10 +85,10 @@ class acp_listener implements EventSubscriberInterface
 
 		$topic_template = $action === 'add' ? '' : $this->store->get_template($forum_id);
 
-		$template_data['FORUM_MARTTIPHPBB_TOPICTEMPLATE'] = $topic_template;
+		$template_data['FORUM_MARTTIPHPBB_ARCHIVEFORUM'] = $topic_template;
 
 		$event['template_data'] = $template_data;
 
-		$this->language->add_lang('acp', 'marttiphpbb/topictemplate');
+		$this->language->add_lang('acp', 'marttiphpbb/archiveforum');
 	}
 }

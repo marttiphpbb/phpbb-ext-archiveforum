@@ -1,19 +1,19 @@
 <?php
 
 /**
-* phpBB Extension - marttiphpbb Topic Template
+* phpBB Extension - marttiphpbb Archive Forum
 * @copyright (c) 2015 - 2018 marttiphpbb <info@martti.be>
 * @license GNU General Public License, version 2 (GPL-2.0)
 */
 
-namespace marttiphpbb\topictemplate\service;
+namespace marttiphpbb\archiveforum\service;
 
 use phpbb\config\db_text as config_text;
 use phpbb\cache\driver\driver_interface as cache;
 
 class store
 {
-	const KEY = 'marttiphpbb_topictemplate';
+	const KEY = 'marttiphpbb_archiveforum';
 	const CACHE_KEY = '_' . self::KEY;
 
 	/** @var config_text */

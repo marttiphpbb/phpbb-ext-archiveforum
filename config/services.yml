@@ -1,24 +1,24 @@
 services:
-    marttiphpbb.topictemplate.acp_listener:
-        class: marttiphpbb\topictemplate\event\acp_listener
+    marttiphpbb.archiveforum.acp_listener:
+        class: marttiphpbb\archiveforum\event\acp_listener
         arguments:
             - '@dbal.conn'
             - '@request'
             - '@language'
-            - '@marttiphpbb.topictemplate.service.store'
+            - '@marttiphpbb.archiveforum.service.store'
             - '%tables.forums%'
         tags:
             - { name: event.listener }
 
-    marttiphpbb.topictemplate.posting_listener:
-        class: marttiphpbb\topictemplate\event\posting_listener
+    marttiphpbb.archiveforum.listener:
+        class: marttiphpbb\archiveforum\event\listener
         arguments:
-            - '@marttiphpbb.topictemplate.service.store'
+            - '@marttiphpbb.archiveforum.service.store'
         tags:
             - { name: event.listener }
 
-    marttiphpbb.topictemplate.service.store:
-        class: marttiphpbb\topictemplate\service\store
+    marttiphpbb.archiveforum.service.store:
+        class: marttiphpbb\archiveforum\service\store
         arguments:
             - '@config_text'
             - '@cache.driver'

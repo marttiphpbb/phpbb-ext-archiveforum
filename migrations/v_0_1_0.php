@@ -1,59 +1,57 @@
 <?php
 /**
-* phpBB Extension - marttiphpbb Topic Template
+* phpBB Extension - marttiphpbb Archive Forum
 * @copyright (c) 2015 - 2018 marttiphpbb <info@martti.be>
 * @license GNU General Public License, version 2 (GPL-2.0)
 */
 
-namespace marttiphpbb\topictemplate\migrations;
-
-use marttiphpbb\topictemplate\service\store;
+namespace marttiphpbb\archiveforum\migrations;
 
 class v_0_1_0 extends \phpbb\db\migration\migration
 {
 	public function update_data()
 	{
-		$data = [];
-
-	/** 
-		Migrate data from the "Posting Template" extension 
-		https://github.com/marttiphpbb/phpbb-ext-postingtemplate
-		Only when it's enabled. 
-	*/
-
-		$sql = 'select ext_active 
-			from ' . EXT_TABLE . '
-			where ext_name = \'marttiphpbb/postingtemplate\'';
-		$result = $this->db->sql_query($sql);		
-		$active = $this->db->sql_fetchfield('ext_active');
-		$this->db->sql_freeresult($result);
-	
-		if ($active)
-		{
-			$sql = 'select config_name, config_value
-				from ' . CONFIG_TEXT_TABLE . '
-				where config_name ' . $this->db->sql_like_expression('marttiphpbb_postingtemplate_forum' . $this->db->get_any_char());
-			$result = $this->db->sql_query($sql);
-			while ($row = $this->db->sql_fetchrow($result))
-			{
-				$forum_id = str_replace(['marttiphpbb_postingtemplate_forum[', ']'], '', $row['config_name']);
-				if (!ctype_digit($forum_id))
-				{
-					continue;
-				}
-
-				$data['templates'][(int) $forum_id] = $row['config_value'];
-			}
-			$this->db->sql_freeresult($result);	
-
-			if (isset($data['templates']) && count($data['templates']))
-			{
-				$data['imported_data_at'] = time();	
-			}
-		}
-
 		return [
-			['config_text.add', [store::KEY, serialize($data)]],
+			['config.add', ['marttiphpbb_archiveforum_id', 0]],
+
+			['module.add', [
+				'acp',
+				'ACP_CAT_DOT_MODS',
+				'ACP_MARTTIPHPBB_ARCHIVEFORUM',
+			]],
+
+			['module.add', [
+				'acp',
+				'ACP_MARTTIPHPBB_ARCHIVEFORUM',
+				[
+					'module_basename'	=> '\marttiphpbb\archiveforum\acp\main_module',
+					'modes'				=> [
+						'select_forum',
+					],
+				],
+			]],
+		];
+	}
+
+	public function update_schema()
+	{
+		return [
+			'add_columns'        => [
+				$this->table_prefix . 'forums' => [
+					'marttiphpbb_archived_from_fid'  => ['UINT', NULL],
+				],
+			],
+		];
+	}
+
+	public function revert_schema()
+	{
+		return [
+			'drop_columns'        => [
+				$this->table_prefix . 'forums'	=> [
+					'marttiphpbb_archived_from_fid',
+				],
+			],
 		];
 	}
 }
