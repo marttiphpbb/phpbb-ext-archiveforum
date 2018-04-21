@@ -37,7 +37,7 @@ class v_0_1_0 extends \phpbb\db\migration\migration
 	{
 		return [
 			'add_columns'        => [
-				$this->table_prefix . 'forums' => [
+				$this->table_prefix . 'topics' => [
 					'marttiphpbb_archived_from_fid'  => ['UINT', NULL],
 				],
 			],
@@ -48,7 +48,7 @@ class v_0_1_0 extends \phpbb\db\migration\migration
 	{
 		return [
 			'drop_columns'        => [
-				$this->table_prefix . 'forums'	=> [
+				$this->table_prefix . 'topics'	=> [
 					'marttiphpbb_archived_from_fid',
 				],
 			],

@@ -56,7 +56,7 @@ class acp_listener implements EventSubscriberInterface
 
 	static public function getSubscribedEvents()
 	{
-		return [
+		return [			
 			'core.acp_manage_forums_initialise_data'	=> 'core_acp_manage_forums_initialise_data',
 			'core.acp_manage_forums_update_data_after'	=> 'core_acp_manage_forums_update_data_after',
 			'core.acp_manage_forums_display_form'		=> 'core_acp_manage_forums_display_form',

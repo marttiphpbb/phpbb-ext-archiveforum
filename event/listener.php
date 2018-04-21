@@ -8,50 +8,42 @@
 namespace marttiphpbb\archiveforum\event;
 
 use phpbb\event\data as event;
-use marttiphpbb\archiveforum\service\store;
+use phpbb\db\driver\factory as db;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class listener implements EventSubscriberInterface
 {
-	/** @var store */
-	private $store;
+	/** @var db */
+	private $db;
+
+	/** @var string */
+	private $topics_table;
 
 	/**
-	* @param store
+	* @param db
 	*/
-	public function __construct(store $store)
+	public function __construct(db $db, string $topics_table)
 	{
-		$this->store = $store;
+		$this->db = $db;
+		$this->topics_table = $topics_table;
 	}
 
 	static public function getSubscribedEvents()
 	{
 		return [
-			'core.posting_modify_template_vars'			=> 'core_posting_modify_template_vars',
+			'core.move_topics_before_query'		=> 'core_move_topics_before_query',
 		];
 	}
 
-	public function core_posting_modify_template_vars(event $event)
+	public function core_move_topics_before_query(event $event)
 	{
-		$page_data = $event['page_data'];
-		$post_data = $event['post_data'];
-		$mode = $event['mode'];
-		$submit = $event['submit'];
-		$preview = $event['preview'];
-		$load = $event['load'];
-		$save = $event['save'];
-		$refresh = $event['refresh'];
-		$forum_id = $event['forum_id'];
+		$topic_ids = $event['topic_ids'];
 
-		if ($mode == 'post'
-			&& !$submit && !$preview && !$load && !$save && !$refresh
-			&& empty($post_data['post_text']) && empty($post_data['post_subject'])
-			&& $this->store->template_is_set($forum_id))
-		{
-			$page_data['MESSAGE'] = $this->store->get_template($forum_id);
-		}
-
-		$event['page_data'] = $page_data;
+		// we store the forum id where the topic came from.
+		$sql = 'update ' . $this->topics_table . '
+			set marttiphpbb_archived_from_fid = forum_id 
+			where ' . $this->db->sql_in_set('topic_id', $topic_ids);
+		$this->db->sql_query($sql);
 	}
 }

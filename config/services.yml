@@ -1,24 +1,9 @@
 services:
-    marttiphpbb.archiveforum.acp_listener:
-        class: marttiphpbb\archiveforum\event\acp_listener
-        arguments:
-            - '@dbal.conn'
-            - '@request'
-            - '@language'
-            - '@marttiphpbb.archiveforum.service.store'
-            - '%tables.forums%'
-        tags:
-            - { name: event.listener }
-
     marttiphpbb.archiveforum.listener:
         class: marttiphpbb\archiveforum\event\listener
         arguments:
-            - '@marttiphpbb.archiveforum.service.store'
+            - '@dbal.conn'
+            - '%tables.topics%'
         tags:
             - { name: event.listener }
 
-    marttiphpbb.archiveforum.service.store:
-        class: marttiphpbb\archiveforum\service\store
-        arguments:
-            - '@config_text'
-            - '@cache.driver'
