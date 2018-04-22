@@ -18,7 +18,7 @@ if (empty($lang) || !is_array($lang))
 
 $lang = array_merge($lang, [
 
-	'ACP_MARTTIPHPBB_ARCHIVEFORUM_ARCHIVE'		=> 'Archive',
-	'ACP_MARTTIPHPBB_ARCHIVEFORUM_RESTORE'		=> 'Restore',
-	'ACP_MARTTIPHPBB_ARCHIVEFORUM_FROM'			=> 'From %s',
+	'MARTTIPHPBB_ARCHIVEFORUM_ARCHIVE'		=> 'Archive',
+	'MARTTIPHPBB_ARCHIVEFORUM_RESTORE'		=> 'Restore',
+	'MARTTIPHPBB_ARCHIVEFORUM_FROM'			=> 'From %s',
 ]);

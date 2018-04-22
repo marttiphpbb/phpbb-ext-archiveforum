@@ -32,8 +32,19 @@ class listener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return [
+			'core.user_setup'					=> 'core_user_setup',
 			'core.move_topics_before_query'		=> 'core_move_topics_before_query',
 		];
+	}
+
+	public function core_user_setup(event $event)
+	{
+		$lang_set_ext = $event['lang_set_ext'];
+		$lang_set_ext[] = [
+			'ext_name' => 'marttiphpbb/archiveforum',
+			'lang_set' => 'common',
+		];
+		$event['lang_set_ext'] = $lang_set_ext;
 	}
 
 	public function core_move_topics_before_query(event $event)
