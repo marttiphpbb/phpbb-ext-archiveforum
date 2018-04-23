@@ -4,6 +4,8 @@ services:
         arguments:
             - '@dbal.conn'
             - '%tables.topics%'
+            - '@config'
+            - '@auth'
         tags:
             - { name: event.listener }
 
