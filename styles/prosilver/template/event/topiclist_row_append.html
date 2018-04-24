@@ -1,3 +1,9 @@
-<p class="marttiphpbb-archiveforum-row">
-    {{ lang('MARTTIPHPBB_ARCHIVEFORUM_ARCHIVED_FROM', '#oufti', 'Oufti-24') -}}
-</p>
+{%- if topicrow.U_MARTTIPHPBB_ARCHIVEFORUM -%}
+    <p class="marttiphpbb-archiveforum-row">
+        {{ lang('MARTTIPHPBB_ARCHIVEFORUM_ARCHIVED_FROM', topicrow.U_MARTTIPHPBB_ARCHIVEFORUM, topicrow.MARTTIPHPBB_ARCHIVEFORUM_NAME) -}}
+    </p>
+{%- elseif searchresults.U_MARTTIPHPBB_ARCHIVEFORUM -%}
+    <p class="marttiphpbb-archiveforum-row">
+        {{ lang('MARTTIPHPBB_ARCHIVEFORUM_ARCHIVED_FROM', searchresults.U_MARTTIPHPBB_ARCHIVEFORUM, searchresults.MARTTIPHPBB_ARCHIVEFORUM_NAME) -}}
+    </p>
+{%- endif -%}

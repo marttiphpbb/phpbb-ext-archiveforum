@@ -13,7 +13,6 @@ Note that you still have to set yourself the appropriate permissions for the "Ar
 
 ## Screenshots
 
-
 ## Quick Install
 
 You can install this on the latest release of phpBB 3.2 by following the steps below:

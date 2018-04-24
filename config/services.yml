@@ -1,14 +1,19 @@
 services:
-    marttiphpbb.archiveforum.main_listener:
-        class: marttiphpbb\archiveforum\event\main_listener
+    marttiphpbb.archiveforum.viewforum_listener:
+        class: marttiphpbb\archiveforum\event\viewforum_listener
         arguments:
             - '@dbal.conn'
             - '%tables.topics%'
+            - '%tables.forums%'
             - '@config'
             - '@auth'
-            - '@language'
-            - '@request'
-            - '@template'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+        tags:
+            - { name: event.listener }
+
+    marttiphpbb.archiveforum.main_listener:
+        class: marttiphpbb\archiveforum\event\main_listener
         tags:
             - { name: event.listener }
 
