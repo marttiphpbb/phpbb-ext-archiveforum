@@ -1,11 +1,34 @@
 services:
-    marttiphpbb.archiveforum.listener:
+    marttiphpbb.archiveforum.main_listener:
         class: marttiphpbb\archiveforum\event\listener
         arguments:
             - '@dbal.conn'
             - '%tables.topics%'
             - '@config'
             - '@auth'
+            - '@language'
+            - '@request'
+            - '@template'
         tags:
             - { name: event.listener }
 
+    marttiphpbb.archiveforum.mcp_listener:
+        class: marttiphpbb\archiveforum\event\listener
+        arguments:
+            - '@dbal.conn'
+            - '%tables.topics%'
+            - '@config'
+            - '@auth'
+            - '@language'
+            - '@request'
+            - '@template'
+        tags:
+            - { name: event.listener }
+
+    marttiphpbb.archiveforum.move_listener:
+        class: marttiphpbb\archiveforum\event\move_listener
+        arguments:
+            - '@dbal.conn'
+            - '%tables.topics%'
+        tags:
+            - { name: event.listener }            
