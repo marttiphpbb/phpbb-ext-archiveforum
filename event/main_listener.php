@@ -71,7 +71,89 @@ class main_listener implements EventSubscriberInterface
 	{
 		return [
 			'core.user_setup'					=> 'core_user_setup',
+			'core.viewforum_modify_topics_data'	=> 'core_viewforum_modify_topics_data',
 		];
+	}
+
+	public function core_viewforum_modify_topics_data(event $event)
+	{
+		$forum_id = $event['forum_id'];
+
+		if (!$this->config['marttiphpbb_archiveforum_id']
+			|| $forum_id !== $this->config['marttiphpbb_archiveforum_id'])
+		{
+			return;
+		}
+
+		$rowset = $event['rowset'];
+		$archive_id = $this->config['marttiphpbb_archiveforum_id'];
+		$topics_archived = [];
+		$org_forums = [];
+		$forum_names = [];
+
+		foreach ($rowset as $topic_id => $topic_data)
+		{
+			if (!$topic_data['marttiphpbb_archived_from_fid']
+				|| $topic_data['marttiphpbb_archived_from_fid'] === $archive_id)
+			{
+				continue;
+			}
+
+			$org_forum_id = $topic_data['marttiphpbb_archived_from_fid'];
+
+			$org_forums[$org_forum_id] = true;
+
+			if (!$this->auth->acl_get('f_list', $org_forum_id))
+			{
+				continue;
+			}
+
+			$topics_archived[$org_forum_id][] = $topic_id;
+		}
+
+		$sql = 'select forum_id, forum_name
+			from ' . FORUMS_TABLE . '
+			where ' . $this->db->sql_in_set('forum_id', array_keys($org_forums));
+
+		$result = $this->db->sql_query($sql);
+
+		while ($row = $this->db->fetchrow('forum_id'))
+		{
+			unset($org_forums[$row['forum_id']]);
+			$forum_names[$row['forum_id']] = $row['forum_name'];
+		}
+
+		$this->db->sql_freeresult($result);
+
+		$deleted_forums = array_keys($org_forums);
+
+		if (count($deleted_forums))
+		{
+			$sql = 'update ' . TOPICS_TABLE . '
+				set marttiphpbb_archived_from_fid = 0 
+				where ' . $this->db->sql_in_set('marttiphpbb_archived_from_fid', $deleted_forums);
+	
+			$result = $this->db->sql_query($sql);
+
+			foreach($deleted_forums as $deleted_forum_id)
+			{
+				unset($topics_archived[$deleted_forum_id]);
+
+				error_log('marttiphpbb/archiveforum: deleted forum with id ' . $deleted_forum_id . ' was removed from archive index');
+			}
+		}
+
+		foreach ($topics_archived as $org_forum_id => $topic_ids)
+		{
+			foreach ($topic_ids as $topic_id)
+			{
+				$forum_names[$org_forum_id];
+			}
+		}
+
+
+
+
 	}
 
 	public function core_user_setup(event $event)

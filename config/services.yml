@@ -1,6 +1,6 @@
 services:
     marttiphpbb.archiveforum.main_listener:
-        class: marttiphpbb\archiveforum\event\listener
+        class: marttiphpbb\archiveforum\event\main_listener
         arguments:
             - '@dbal.conn'
             - '%tables.topics%'
@@ -13,7 +13,7 @@ services:
             - { name: event.listener }
 
     marttiphpbb.archiveforum.mcp_listener:
-        class: marttiphpbb\archiveforum\event\listener
+        class: marttiphpbb\archiveforum\event\mcp_listener
         arguments:
             - '@dbal.conn'
             - '%tables.topics%'
