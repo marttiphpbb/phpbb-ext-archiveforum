@@ -1,5 +1,7 @@
 {%- if U_MARTTIPHPBB_ARCHIVEFORUM -%}
-    <p class="marttiphpbb-archiveforum">
+    <span class="marttiphpbb-archiveforum">
         {{- lang('MARTTIPHPBB_ARCHIVEFORUM_ARCHIVED_FROM', U_MARTTIPHPBB_ARCHIVEFORUM, MARTTIPHPBB_ARCHIVEFORUM_NAME) -}}
-    </p>
+    </span>
 {%- endif -%}
+
+{%- INCLUDEJS '@marttiphpbb_archiveforum/js/mcp_archiveforum.js' -%}

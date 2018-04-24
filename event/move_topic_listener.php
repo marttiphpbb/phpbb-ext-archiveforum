@@ -12,7 +12,7 @@ use phpbb\db\driver\factory as db;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class move_listener implements EventSubscriberInterface
+class move_topic_listener implements EventSubscriberInterface
 {
 	/** @var db */
 	private $db;

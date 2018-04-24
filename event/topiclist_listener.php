@@ -14,7 +14,7 @@ use phpbb\auth\auth;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class viewforum_listener implements EventSubscriberInterface
+class topiclist_listener implements EventSubscriberInterface
 {
 	/** @var db */
 	private $db;

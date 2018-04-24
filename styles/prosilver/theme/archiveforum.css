@@ -3,3 +3,9 @@ p.marttiphpbb-archiveforum-row
     clear: left;
     margin-bottom: 0;
 }
+
+h2 span.marttiphpbb-archiveforum
+{
+   font-size: .7em;
+   padding-left: .9em; 
+}

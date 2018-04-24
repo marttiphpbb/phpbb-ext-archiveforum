@@ -1,6 +1,6 @@
 services:
-    marttiphpbb.archiveforum.viewforum_listener:
-        class: marttiphpbb\archiveforum\event\viewforum_listener
+    marttiphpbb.archiveforum.topiclist_listener:
+        class: marttiphpbb\archiveforum\event\topiclist_listener
         arguments:
             - '@dbal.conn'
             - '%tables.topics%'
@@ -9,6 +9,20 @@ services:
             - '@auth'
             - '%core.root_path%'
             - '%core.php_ext%'
+        tags:
+            - { name: event.listener }
+
+    marttiphpbb.archiveforum.topic_listener:
+        class: marttiphpbb\archiveforum\event\topic_listener
+        arguments:
+            - '@dbal.conn'
+            - '%tables.topics%'
+            - '%tables.forums%'
+            - '@config'
+            - '@auth'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+            - '@template'
         tags:
             - { name: event.listener }
 
@@ -30,8 +44,8 @@ services:
         tags:
             - { name: event.listener }
 
-    marttiphpbb.archiveforum.move_listener:
-        class: marttiphpbb\archiveforum\event\move_listener
+    marttiphpbb.archiveforum.move_topic_listener:
+        class: marttiphpbb\archiveforum\event\move_topic_listener
         arguments:
             - '@dbal.conn'
             - '%tables.topics%'
