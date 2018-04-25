@@ -17,7 +17,7 @@ use phpbb\template\template;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class mcp_listener implements EventSubscriberInterface
+class mcp_topic_listener implements EventSubscriberInterface
 {
 	/** @var db */
 	private $db;
@@ -70,8 +70,6 @@ class mcp_listener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return [
-			'core.user_setup'					=> 'core_user_setup',
-			'core.move_topics_before_query'		=> 'core_move_topics_before_query',
 			'core.viewtopic_add_quickmod_option_before'
 				=> 'core_viewtopic_add_quickmod_option_before',
 			'core.mcp_global_f_read_auth_after'
@@ -83,34 +81,19 @@ class mcp_listener implements EventSubscriberInterface
 		];
 	}
 
-
-			/** mcp.php
-			* This event allows you to add custom quickmod options
-			*
-			* @event core.modify_quickmod_options
-			* @var	object	module			Instance of module system class
-			* @var	string	action			Quickmod option
-			* @var	bool	is_valid_action	Flag indicating if the action was handled properly
-			* @since 3.1.0-a4
-			*/
-			/*
-			$vars = array('module', 'action', 'is_valid_action');
-			extract($phpbb_dispatcher->trigger_event('core.modify_quickmod_options', compact($vars)));
+/** mcp_main.php
+* This event allows you to handle custom quickmod options
+*
+* @event core.modify_quickmod_actions
+* @var	string	action		Topic quick moderation action name
+* @var	bool	quickmod	Flag indicating whether MCP is in quick moderation mode
+* @since 3.1.0-a4
+* @changed 3.1.0-RC4 Added variables: action, quickmod
 */
-
-				/** mcp_main.php
-				* This event allows you to handle custom quickmod options
-				*
-				* @event core.modify_quickmod_actions
-				* @var	string	action		Topic quick moderation action name
-				* @var	bool	quickmod	Flag indicating whether MCP is in quick moderation mode
-				* @since 3.1.0-a4
-				* @changed 3.1.0-RC4 Added variables: action, quickmod
-				*/
-				/*
-				$vars = array('action', 'quickmod');
-				extract($phpbb_dispatcher->trigger_event('core.modify_quickmod_actions', compact($vars)));
-				*/
+/*
+$vars = array('action', 'quickmod');
+extract($phpbb_dispatcher->trigger_event('core.modify_quickmod_actions', compact($vars)));
+*/
 
 	public function core_modify_quickmod_actions(event $event)
 	{
@@ -201,6 +184,21 @@ class mcp_listener implements EventSubscriberInterface
 		confirm_box(false, $message, $s_hidden_fields, '@marttiphpbb_archiveforum/confirm.html');
 	}
 
+/** mcp.php
+* This event allows you to add custom quickmod options
+*
+* @event core.modify_quickmod_options
+* @var	object	module			Instance of module system class
+* @var	string	action			Quickmod option
+* @var	bool	is_valid_action	Flag indicating if the action was handled properly
+* @since 3.1.0-a4
+*/
+/*
+$vars = array('module', 'action', 'is_valid_action');
+extract($phpbb_dispatcher->trigger_event('core.modify_quickmod_options', compact($vars)));
+*/
+
+
 	public function core_modify_quickmod_options(event $event)
 	{
 		$module = $event['module'];
@@ -222,6 +220,8 @@ class mcp_listener implements EventSubscriberInterface
 		$event['is_valid_action'] = $is_valid_action;
 	}
 
+
+
 	public function core_mcp_global_f_read_auth_after(event $event)
 	{
 		$action = $event['action'];
@@ -242,6 +242,12 @@ class mcp_listener implements EventSubscriberInterface
 		$event['forum_id'] = $forum_id;
 	}
 
+
+
+
+
+
+
 	public function core_viewtopic_add_quickmod_option_before(event $event)
 	{
 		$quickmod_array = $event['quickmod_array'];
@@ -249,39 +255,18 @@ class mcp_listener implements EventSubscriberInterface
 		$topic_data = $event['topic_data'];
 
 		$quickmod_array['marttiphpbb_archiveforum_restore'] = [
-			'MARTTIPHPBB_ARCHIVEFORUM_RESTORE', 
-			$forum_id === $this->config['marttiphpbb_archiveforum_id']
+			'MARTTIPHPBB_ARCHIVEFORUM_QUICKMOD_RESTORE', 
+			$forum_id == $this->config['marttiphpbb_archiveforum_id']
 				&& $this->auth->acl_get('m_move', $forum_id) 
 				&& $topic_data['marttiphpbb_archived_from_fid'],
 		];
 
 		$quickmod_array['marttiphpbb_archiveforum_archive'] = [
-			'MARTTIPHPBB_ARCHIVEFORUM_ARCHIVE',
-			$forum_id !== $this->config['marttiphpbb_archiveforum_id']
+			'MARTTIPHPBB_ARCHIVEFORUM_QUICKMOD_ARCHIVE',
+			$forum_id != $this->config['marttiphpbb_archiveforum_id']
 				&& $this->auth->acl_get('m_move', $forum_id),
 		];
 
 		$event['quickmod_array'] = $quickmod_array;
-	}
-
-	public function core_user_setup(event $event)
-	{
-		$lang_set_ext = $event['lang_set_ext'];
-		$lang_set_ext[] = [
-			'ext_name' => 'marttiphpbb/archiveforum',
-			'lang_set' => 'common',
-		];
-		$event['lang_set_ext'] = $lang_set_ext;
-	}
-
-	public function core_move_topics_before_query(event $event)
-	{
-		$topic_ids = $event['topic_ids'];
-
-		// we store the forum id where the topic came from.
-		$sql = 'update ' . $this->topics_table . '
-			set marttiphpbb_archived_from_fid = forum_id 
-			where ' . $this->db->sql_in_set('topic_id', $topic_ids);
-		$this->db->sql_query($sql);
 	}
 }

@@ -19,4 +19,6 @@ if (empty($lang) || !is_array($lang))
 $lang = array_merge($lang, [
 
 	'MARTTIPHPBB_ARCHIVEFORUM_ARCHIVED_FROM'	=> 'Archived from <a href="%1$s">%2$s</a>',
+	'MARTTIPHPBB_ARCHIVEFORUM_QUICKMOD_RESTORE'	=> 'Restore from archive',
+	'MARTTIPHPBB_ARCHIVEFORUM_QUICKMOD_ARCHIVE'	=> 'Move to archive',
 ]);

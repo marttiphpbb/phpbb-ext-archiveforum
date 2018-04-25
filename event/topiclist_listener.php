@@ -247,6 +247,11 @@ class topiclist_listener implements EventSubscriberInterface
 
 	private function get_forum_names_and_cleanup_deleted(array $org_forums):array
 	{
+		if (!count($org_forums))
+		{
+			return [];
+		}
+
 		$forum_names = [];
 
 		$sql = 'select forum_id, forum_name

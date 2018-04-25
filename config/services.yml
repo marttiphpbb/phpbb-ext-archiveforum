@@ -31,8 +31,21 @@ services:
         tags:
             - { name: event.listener }
 
-    marttiphpbb.archiveforum.mcp_listener:
-        class: marttiphpbb\archiveforum\event\mcp_listener
+    marttiphpbb.archiveforum.mcp_topic_listener:
+        class: marttiphpbb\archiveforum\event\mcp_topic_listener
+        arguments:
+            - '@dbal.conn'
+            - '%tables.topics%'
+            - '@config'
+            - '@auth'
+            - '@language'
+            - '@request'
+            - '@template'
+        tags:
+            - { name: event.listener }
+
+    marttiphpbb.archiveforum.mcp_forum_listener:
+        class: marttiphpbb\archiveforum\event\mcp_forum_listener
         arguments:
             - '@dbal.conn'
             - '%tables.topics%'
