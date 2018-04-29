@@ -30,6 +30,25 @@ class v_0_1_0 extends \phpbb\db\migration\migration
 					],
 				],
 			]],
+
+			['module.add', [
+				'mcp',
+				0,
+				'MCP_MARTTIPHPBB_ARCHIVEFORUM',
+			]],
+
+			['module.add', [
+				'mcp',
+				'MCP_MARTTIPHPBB_ARCHIVEFORUM',
+				[
+					'module_basename'	=> '\marttiphpbb\archiveforum\mcp\main_module',
+					'modes'				=> [
+						'marttiphpbb_archiveforum_archive',
+						'marttiphpbb_archiveforum_restore',
+					],
+				],
+			]],
+
 		];
 	}
 
