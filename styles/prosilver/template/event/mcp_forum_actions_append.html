@@ -1,5 +1,10 @@
-{%- if true or MARTTIPHPBB_ARCHIVEFORUM_ID -%}
-    <option value="marttiphpbb_archiveforum_archive">{{- lang('MCP_FORUM_MARTTIPHPBB_ARCHIVEFORUM_ARCHIVE') -}}</option>
-    <option value="marttiphpbb_archiveforum_restore">{{- lang('MCP_FORUM_MARTTIPHPBB_ARCHIVEFORUM_RESTORE') -}}</option>
+{%- if S_MARTTIPHPBB_ARCHIVEFORUM_CAN_RESTORE -%}
+    <option value="marttiphpbb_archiveforum_restore">
+        {{- lang('MCP_FORUM_MARTTIPHPBB_ARCHIVEFORUM_RESTORE') -}}
+    </option>
 {%- endif -%}
-
+{%- if S_MARTTIPHPBB_ARCHIVEFORUM_CAN_ARCHIVE -%} 
+    <option value="marttiphpbb_archiveforum_archive">
+        {{- lang('MCP_FORUM_MARTTIPHPBB_ARCHIVEFORUM_ARCHIVE') -}}
+    </option>
+{%- endif -%}

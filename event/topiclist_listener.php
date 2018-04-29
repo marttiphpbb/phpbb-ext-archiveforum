@@ -129,8 +129,8 @@ class topiclist_listener implements EventSubscriberInterface
 	{
 		$row = $event['row'];
 		$tpl_ary = $event['tpl_ary'];
-
-		$event['tpl_ary'] = array_merge($tpl_ary, $this->get_row_template_vars($row));		
+		$tpl_ary = array_merge($tpl_ary, $this->get_row_template_vars($row));
+		$event['tpl_ary'] = $tpl_ary;		
 	}
 
 	public function core_mcp_view_forum_modify_sql(event $event)
