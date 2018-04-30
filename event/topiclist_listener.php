@@ -11,7 +11,7 @@ use phpbb\event\data as event;
 use phpbb\db\driver\factory as db;
 use phpbb\config\config;
 use phpbb\auth\auth;
-
+use marttiphpbb\archiveforum\util\cnst;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class topiclist_listener implements EventSubscriberInterface
@@ -87,7 +87,7 @@ class topiclist_listener implements EventSubscriberInterface
 	{
 		$rowset = $event['rowset'];
 
-		$archive_id = $this->config['marttiphpbb_archiveforum_id'];
+		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
 
 		if (!$archive_id)
 		{
@@ -105,7 +105,7 @@ class topiclist_listener implements EventSubscriberInterface
 				continue;
 			}
 
-			$org_forum_id = $data['marttiphpbb_archived_from_fid'];
+			$org_forum_id = $data[cnst::FROM_FORUM_ID_COLUMN];
 
 			if (!$org_forum_id || $org_forum_id == $archive_id)
 			{
@@ -136,7 +136,7 @@ class topiclist_listener implements EventSubscriberInterface
 	public function core_mcp_view_forum_modify_sql(event $event)
 	{
 		$forum_id = $event['forum_id'];
-		$archive_id = $this->config['marttiphpbb_archiveforum_id'];
+		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
 
 		if (!$archive_id || $forum_id != $archive_id)
 		{
@@ -148,7 +148,7 @@ class topiclist_listener implements EventSubscriberInterface
 		$start = $event['start'];
 
 		$search = 't.topic_id';
-		$replace = 't.topic_id, t.marttiphpbb_archived_from_fid';
+		$replace = 't.topic_id, t.' . cnst::FROM_FORUM_ID_COLUMN;
 
 		// only replace first instance, so no str_replace()
 		$sql = substr_replace($sql, $replace, strpos($sql, $search), strlen($search));
@@ -160,7 +160,7 @@ class topiclist_listener implements EventSubscriberInterface
 		while ($row = $this->db->sql_fetchrow($result))
 		{
 			$topic_id = $row['topic_id'];
-			$org_forum_id = $row['marttiphpbb_archived_from_fid'];
+			$org_forum_id = $row[cnst::FROM_FORUM_ID_COLUMN];
 
 			if (!$org_forum_id || $org_forum_id == $archive_id)
 			{
@@ -192,7 +192,7 @@ class topiclist_listener implements EventSubscriberInterface
 	public function core_viewforum_modify_topics_data(event $event)
 	{
 		$forum_id = $event['forum_id'];
-		$archive_id = $this->config['marttiphpbb_archiveforum_id'];
+		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
 
 		if (!$archive_id || $forum_id != $archive_id)
 		{
@@ -205,7 +205,7 @@ class topiclist_listener implements EventSubscriberInterface
 
 		foreach ($rowset as $topic_id => $topic_data)
 		{
-			$org_forum_id = $topic_data['marttiphpbb_archived_from_fid'];
+			$org_forum_id = $topic_data[cnst::FROM_FORUM_ID_COLUMN];
 
 			if (!$org_forum_id || $org_forum_id == $archive_id)
 			{
@@ -273,14 +273,14 @@ class topiclist_listener implements EventSubscriberInterface
 		if (count($deleted_forums))
 		{
 			$sql = 'update ' . $this->topics_table . '
-				set marttiphpbb_archived_from_fid = 0 
-				where ' . $this->db->sql_in_set('marttiphpbb_archived_from_fid', $deleted_forums);
+				set ' . cnst::FROM_FORUM_ID_COLUMN . ' = 0 
+				where ' . $this->db->sql_in_set(cnst::FROM_FORUM_ID_COLUMN, $deleted_forums);
 	
 			$this->db->sql_query($sql);
 
 			foreach($deleted_forums as $deleted_forum_id)
 			{
-				error_log('marttiphpbb/archiveforum: deleted forum with id ' . $deleted_forum_id . ' was removed from archive index');
+				error_log(cnst::ID . ': deleted forum with id ' . $deleted_forum_id . ' was removed from archive index');
 			}
 		}
 
@@ -291,7 +291,7 @@ class topiclist_listener implements EventSubscriberInterface
 	{
 		$forum_id = $row['forum_id'];
 		$topic_id = $row['topic_id'];
-		$archive_id = $this->config['marttiphpbb_archiveforum_id'];
+		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
 
 		if (!$archive_id || $forum_id != $archive_id)
 		{

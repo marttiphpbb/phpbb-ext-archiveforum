@@ -6,13 +6,14 @@
 */
 
 namespace marttiphpbb\archiveforum\migrations;
+use marttiphpbb\archiveforum\util\cnst;
 
 class v_0_1_0 extends \phpbb\db\migration\migration
 {
 	public function update_data()
 	{
 		return [
-			['config.add', ['marttiphpbb_archiveforum_id', 0]],
+			['config.add', [cnst::CONFIG_ARCHIVE_ID, 0]],
 
 			['module.add', [
 				'acp',
@@ -30,25 +31,6 @@ class v_0_1_0 extends \phpbb\db\migration\migration
 					],
 				],
 			]],
-
-			['module.add', [
-				'mcp',
-				0,
-				'MCP_MARTTIPHPBB_ARCHIVEFORUM',
-			]],
-
-			['module.add', [
-				'mcp',
-				'MCP_MARTTIPHPBB_ARCHIVEFORUM',
-				[
-					'module_basename'	=> '\marttiphpbb\archiveforum\mcp\main_module',
-					'modes'				=> [
-						'marttiphpbb_archiveforum_archive',
-						'marttiphpbb_archiveforum_restore',
-					],
-				],
-			]],
-
 		];
 	}
 
@@ -57,7 +39,7 @@ class v_0_1_0 extends \phpbb\db\migration\migration
 		return [
 			'add_columns'        => [
 				$this->table_prefix . 'topics' => [
-					'marttiphpbb_archived_from_fid'  => ['UINT', NULL],
+					cnst::FROM_FORUM_ID_COLUMN  => ['UINT', NULL],
 				],
 			],
 		];
@@ -68,7 +50,7 @@ class v_0_1_0 extends \phpbb\db\migration\migration
 		return [
 			'drop_columns'        => [
 				$this->table_prefix . 'topics'	=> [
-					'marttiphpbb_archived_from_fid',
+					cnst::FROM_FORUM_ID_COLUMN,
 				],
 			],
 		];

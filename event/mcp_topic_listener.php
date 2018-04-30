@@ -14,7 +14,7 @@ use phpbb\auth\auth;
 use phpbb\language\language;
 use phpbb\request\request;
 use phpbb\template\template;
-
+use marttiphpbb\archiveforum\util\cnst;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class mcp_topic_listener implements EventSubscriberInterface
@@ -84,7 +84,7 @@ class mcp_topic_listener implements EventSubscriberInterface
 		$action = $event['action'];
 		$quickmod = $event['quickmod'];
 
-		$this->language->add_lang('mcp', 'marttiphpbb/archiveforum');
+		$this->language->add_lang('mcp', cnst::FOLDER);
 
 		if (!$quickmod)
 		{
@@ -92,14 +92,21 @@ class mcp_topic_listener implements EventSubscriberInterface
 		}
 
 		if (!in_array($action, [
-			'marttiphpbb_archiveforum_archive', 
-			'marttiphpbb_archiveforum_restore',
+			cnst::ARCHIVE_ACTION,
+			cnst::RESTORE_ACTION,
 		]))
 		{
 			return;
 		}
 
-		$s_archive = $action === 'marttiphpbb_archiveforum_archive';
+		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
+
+		if (!$archive_id)
+		{
+			trigger_error('MCP_MARTTIPHPBB_ARCHIVEFORUM_NO_ARCHIVE_SET');
+		}
+
+		$s_archive = $action === cnst::ARCHIVE_ACTION;
 
 		/** cancel button */
 /*
@@ -127,15 +134,19 @@ class mcp_topic_listener implements EventSubscriberInterface
 
 		if ($s_archive)
 		{
-			$to_forum_id = $this->config['marttiphpbb_archiveforum_id'];
+			$to_forum_id = $archive_id;
 		}
 		else
 		{
-			$sql = 'select marttiphpbb_archived_from_fid 
+			$sql = 'select ' . cnst::FROM_FORUM_ID_COLUMN . ' 
 				from ' . $this->topics_table . '
 				where topic_id = ' . $topic_id;
-			$this->db->sql_query($sql);
-			$to_forum_id = $this->db->sql_fetchfield('marttiphpbb_archived_from_fid');
+		
+			$result = $this->db->sql_query($sql);
+	
+			$to_forum_id = $this->db->sql_fetchfield(cnst::FROM_FORUM_ID_COLUMN);
+
+			$this->db->sql_freeresult($result);
 
 			if (!$to_forum_id)
 			{			
@@ -174,13 +185,13 @@ class mcp_topic_listener implements EventSubscriberInterface
 		$action = $event['action'];
 		$is_valid_action = $event['is_valid_action'];
 
-		if ($action === 'marttiphpbb_archiveforum_archive')
+		if ($action === cnst::ARCHIVE_ACTION)
 		{
 			$is_valid_action = true;
 			$module->load('mcp', 'main', 'quickmod');
 		}
 
-		if ($action === 'marttiphpbb_archiveforum_restore')
+		if ($action === cnst::RESTORE_ACTION)
 		{
 			$is_valid_action = true;
 			$module->load('mcp', 'main', 'quickmod');
@@ -195,16 +206,23 @@ class mcp_topic_listener implements EventSubscriberInterface
 		$forum_id = $event['forum_id'];
 		$topic_data = $event['topic_data'];
 
-		$quickmod_array['marttiphpbb_archiveforum_restore'] = [
+		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
+
+		if (!$archive_id)
+		{
+			return;
+		}
+
+		$quickmod_array[cnst::RESTORE_ACTION] = [
 			'MARTTIPHPBB_ARCHIVEFORUM_QUICKMOD_RESTORE', 
-			$forum_id == $this->config['marttiphpbb_archiveforum_id']
+			$forum_id == $archive_id
 				&& $this->auth->acl_get('m_move', $forum_id) 
-				&& $topic_data['marttiphpbb_archived_from_fid'],
+				&& $topic_data[cnst::FROM_FORUM_ID_COLUMN],
 		];
 
-		$quickmod_array['marttiphpbb_archiveforum_archive'] = [
+		$quickmod_array[cnst::ARCHIVE_ACTION] = [
 			'MARTTIPHPBB_ARCHIVEFORUM_QUICKMOD_ARCHIVE',
-			$forum_id != $this->config['marttiphpbb_archiveforum_id']
+			$forum_id != $archive_id
 				&& $this->auth->acl_get('m_move', $forum_id),
 		];
 

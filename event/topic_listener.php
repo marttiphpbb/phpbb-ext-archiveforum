@@ -12,7 +12,7 @@ use phpbb\db\driver\factory as db;
 use phpbb\config\config;
 use phpbb\auth\auth;
 use phpbb\template\template;
-
+use marttiphpbb\archiveforum\util\cnst;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class topic_listener implements EventSubscriberInterface
@@ -117,14 +117,14 @@ class topic_listener implements EventSubscriberInterface
 		$forum_id = $topic_data['forum_id'];
 		$topic_id = $topic_data['topic_id'];
 		
-		$archive_id = $this->config['marttiphpbb_archiveforum_id'];
+		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
 
 		if (!$archive_id || $forum_id != $archive_id)
 		{
 			return;
 		}
 
-		$org_forum_id = $topic_data['marttiphpbb_archived_from_fid'];
+		$org_forum_id = $topic_data[cnst::FROM_FORUM_ID_COLUMN];
 
 		if (!$org_forum_id)
 		{
@@ -142,12 +142,12 @@ class topic_listener implements EventSubscriberInterface
 		if (!$forum_name)
 		{
 			$sql = 'update ' . $this->topics_table . '
-				set marttiphpbb_archived_from_fid = 0 
-				where marttiphpbb_archived_from_fid = ' . $org_forum_id;
+				set ' . cnst::FROM_FORUM_ID_COLUMN . ' = 0 
+				where ' . cnst::FROM_FORUM_ID_COLUMN . ' = ' . $org_forum_id;
 	
 			$this->db->sql_query($sql);
 
-			error_log('marttiphpbb/archiveforum: deleted forum with id ' . $org_forum_id . ' was removed from archive index (topic view)');
+			error_log(cnst::ID . ': deleted forum with id ' . $org_forum_id . ' was removed from archive index (topic view)');
 
 			return;
 		}

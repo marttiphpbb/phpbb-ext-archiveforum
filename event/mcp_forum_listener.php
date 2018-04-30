@@ -14,7 +14,7 @@ use phpbb\auth\auth;
 use phpbb\language\language;
 use phpbb\request\request;
 use phpbb\template\template;
-
+use marttiphpbb\archiveforum\util\cnst;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class mcp_forum_listener implements EventSubscriberInterface
@@ -72,6 +72,8 @@ class mcp_forum_listener implements EventSubscriberInterface
 		return [
 			'core.mcp_forum_view_before'
 				=> 'core_mcp_forum_view_before',
+			'core.modify_quickmod_actions'
+				=> 'core_modify_quickmod_actions',
 		];
 	}
 
@@ -85,7 +87,12 @@ class mcp_forum_listener implements EventSubscriberInterface
 			return;
 		}
 
-		$archive_id = $this->config['marttiphpbb_archiveforum_id'];
+		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
+
+		if (!$archive_id)
+		{
+			return;
+		}
 
 		$s_archive = $archive_id && $archive_id == $forum_id;
 
@@ -93,6 +100,75 @@ class mcp_forum_listener implements EventSubscriberInterface
 			'S_MARTTIPHPBB_ARCHIVEFORUM_CAN_ARCHIVE' 	=> !$s_archive,
 			'S_MARTTIPHPBB_ARCHIVEFORUM_CAN_RESTORE'	=> $s_archive,
 		]);
+	}
+
+	public function core_modify_quickmod_actions(event $event)
+	{
+		$action = $event['action'];
+		$quickmod = $event['quickmod'];
+
+		if ($quickmod)
+		{
+			return;
+		}
+
+		if (!in_array($action,[
+			cnst::ARCHIVE_ACTION, 
+			cnst::RESTORE_ACTION,
+		]))
+		{
+			return;
+		}
+
+		$this->language->add_lang('mcp', cnst::FOLDER);
+
+		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
+
+		if (!$archive_id)
+		{
+			trigger_error('MCP_MARTTIPHPBB_ARCHIVEFORUM_NO_ARCHIVE_SET');
+		}
+
+		$s_archive = $action === cnst::ARCHIVE_ACTION;
+
+		$topic_ids = $this->request->variable('topic_id_list', [0]);
+		
+		if (!count($topic_ids))
+		{
+			trigger_error('NO_TOPIC_SELECTED');
+		}
+
+		$org_forums = $omit_topics = [];
+			
+		$sql = 'select topic_id, topic_title, forum_id, ' . cnst::FROM_FORUM_ID_COLUMN . ' 
+			from ' . $this->topics_table . '
+			where ' . $this->db->sql_in_set('topic_id', $topic_ids);
+
+		$result = $this->db->sql_query($sql);
+
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$archived_from_forum_id = $row[cnst::FROM_FORUM_ID_COLUMN];
+			$forum_id = $row['forum_id'];
+			$topic_id = $row['topic_id'];
+			$topic_title = $row['topic_title'];
+			$topic_url = append_sid($this->phpbb_root_path . 'viewtopic.' . $this->php_ex, [
+				'f' => $forum_id, 
+				't' => $topic_id,
+			]);		
+
+			if (!$archived_from_forum_id)
+			{
+				$omit_topics[] = $topic_id;
+				continue;
+			}
+
+			$org_forums[$forum_id][$topic_id] = $archived_from_forum_id;
+ 		}
+
+		$this->db->sql_freeresult($result);
+ 
+		trigger_error('OUFTI: ' . $action);  
 	}
 
 
