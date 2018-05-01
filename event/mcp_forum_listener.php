@@ -280,7 +280,24 @@ class mcp_forum_listener implements EventSubscriberInterface
 			{
 				trigger_error(cnst::L_MCP . '_RESTORE_DATA_CHANGED');
 			}			
-		}	
+		}
+		
+		$to_forum_ids = array_keys($move_ids);
+		$forum_names = [];
+
+		$sql = 'select forum_id, forum_name
+			from ' . $this->forums_table . '
+			where ' . $this->db->sql_in_set('forum_id', 
+				array_merge($to_forum_ids, [$archive_id]));
+
+		$result = $this->db->sql_query($sql);
+
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$forum_names[$row['forum_id']] = $row['forum_name'];
+		}
+
+		$this->db->sql_freeresult($result);
 
 		if (confirm_box(true))
 		{
@@ -290,9 +307,6 @@ class mcp_forum_listener implements EventSubscriberInterface
 
 				foreach ($topic_ids as $topic_id)
 				{
-					// We add the $to_forum_id twice, because 'forum_id' is updated
-					// when the topic is moved again later.
-					// '<strong>Moved topic</strong><br />» from %1$s to %2$s',
 					$this->log->add(
 						'mod', 
 						$this->user->data['user_id'], 
@@ -302,10 +316,10 @@ class mcp_forum_listener implements EventSubscriberInterface
 						[
 							'forum_id'		=> (int) $to_forum_id,
 							'topic_id'		=> (int) $topic_id,
-							$row['forum_name'],
-							$forum_data['forum_name'],
-							(int) $row['forum_id'],
-							(int) $forum_data['forum_id'],
+							$forum_names[$archive_id],
+							$forum_names[$to_forum_id],
+							(int) $archive_id,
+							(int) $to_forum_id,
 						]
 					);
 				}
@@ -317,22 +331,6 @@ class mcp_forum_listener implements EventSubscriberInterface
 		}
 		else
 		{
-			$to_forum_ids = array_keys($move_ids);
-			$forum_names = [];
-
-			$sql = 'select forum_id, forum_name
-				from ' . $this->forums_table . '
-				where ' . $this->db->sql_in_set('forum_id', $to_forum_ids);
-
-			$result = $this->db->sql_query($sql);
-
-			while ($row = $this->db->sql_fetchrow($result))
-			{
-				$forum_names[$row['forum_id']] = $row['forum_name'];
-			}
-
-			$this->db->sql_freeresult($result);
-
 			foreach ($move_ids as $to_forum_id => $topic_ids)
 			{
 				$forum_link = append_sid($viewforum, [
