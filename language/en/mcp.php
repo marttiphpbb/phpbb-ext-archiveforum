@@ -21,6 +21,8 @@ $lang = array_merge($lang, [
 		=> 'No Archive Forum has been set in the ACP',
 	'MCP_MARTTIPHPBB_ARCHIVEFORUM_TOPIC_NOT_RESTORABLE'
 		=> 'The topic can not be restored from archive because the original forum is not known.',
+	'MCP_MARTTIPHPBB_ARCHIVEFORUM_NO_RESTORABLE_TOPICS'
+		=> 'No restorable topics have been selected.',
 	'MCP_FORUM_MARTTIPHPBB_ARCHIVEFORUM_ARCHIVE'		
 		=> 'Archive',
 	'MCP_FORUM_MARTTIPHPBB_ARCHIVEFORUM_RESTORE'		
@@ -41,4 +43,6 @@ $lang = array_merge($lang, [
 		=> 'Do you want to restore the archived topic back to its original forum?',
 	'MCP_MARTTIPHPBB_ARCHIVEFORUM_RESTORE_TOPICS_CONFIRM'
 		=> 'Do you want to restore the archived topics back to their original forum?',
+	'MCP_MARTTIPHPBB_ARCHIVEFORUM_RETURN_ARCHIVE_FORUM'
+		=> 'Return to the %sarchive forum%s.'
 ]);

@@ -97,8 +97,8 @@ class mcp_forum_listener implements EventSubscriberInterface
 		$s_archive = $archive_id && $archive_id == $forum_id;
 
 		$this->template->assign_vars([
-			'S_MARTTIPHPBB_ARCHIVEFORUM_CAN_ARCHIVE' 	=> !$s_archive,
-			'S_MARTTIPHPBB_ARCHIVEFORUM_CAN_RESTORE'	=> $s_archive,
+			'S_' . cnst::L . '_CAN_ARCHIVE' => !$s_archive,
+			'S_' . cnst::L . '_CAN_RESTORE'	=> $s_archive,
 		]);
 	}
 
@@ -126,7 +126,7 @@ class mcp_forum_listener implements EventSubscriberInterface
 
 		if (!$archive_id)
 		{
-			trigger_error('MCP_MARTTIPHPBB_ARCHIVEFORUM_NO_ARCHIVE_SET');
+			trigger_error(cnst::L_MCP . '_NO_ARCHIVE_SET');
 		}
 
 		$s_archive = $action === cnst::ARCHIVE_ACTION;
@@ -138,8 +138,55 @@ class mcp_forum_listener implements EventSubscriberInterface
 			trigger_error('NO_TOPIC_SELECTED');
 		}
 
-		$org_forums = $omit_topics = [];
-			
+		if ($s_archive)
+		{
+			$this->archive($topic_ids);
+		}
+
+		$this->restore($topic_ids);
+	}
+
+	private function archive(array $topic_ids)
+	{
+		if ($this->request->variable('confirm', ''))
+		{
+			mcp_move_topic([$topic_id]);
+		}
+	
+		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
+
+		// The operation is limited to one forum
+		$forum_id = phpbb_check_ids($topic_ids, $this->topics_table, 'topic_id', ['m_move'], true);
+
+		if ($forum_id === false)
+		{
+			return;
+		}
+
+		$redirect = $this->request->variable('redirect', build_url(['action', 'quickmod']));
+
+		$s_hidden_fields = build_hidden_fields([
+			'topic_id_list'	=> $topic_ids,
+			'to_forum_id'	=> $archive_id,
+			'f'				=> $forum_id,
+			'action'		=> 'move',
+			'redirect'		=> $redirect,
+		]);
+
+		$this->template->assign_vars([
+			'S_CAN_LEAVE_SHADOW'	=> true,
+		]);
+
+		$message = cnst::L_MCP . '_ARCHIVE_TOPIC';
+		$message .= count($topic_ids) === 1 ? '' : 'S';
+
+		confirm_box(false, $message, $s_hidden_fields, cnst::TPL . 'confirm.html');
+	}
+
+	private function restore(array $topic_ids)
+	{
+		$org_forums = $omit_topics = $move = [];
+				
 		$sql = 'select topic_id, topic_title, forum_id, ' . cnst::FROM_FORUM_ID_COLUMN . ' 
 			from ' . $this->topics_table . '
 			where ' . $this->db->sql_in_set('topic_id', $topic_ids);
@@ -148,7 +195,7 @@ class mcp_forum_listener implements EventSubscriberInterface
 
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$archived_from_forum_id = $row[cnst::FROM_FORUM_ID_COLUMN];
+			$to_forum_id = $row[cnst::FROM_FORUM_ID_COLUMN];
 			$forum_id = $row['forum_id'];
 			$topic_id = $row['topic_id'];
 			$topic_title = $row['topic_title'];
@@ -157,20 +204,64 @@ class mcp_forum_listener implements EventSubscriberInterface
 				't' => $topic_id,
 			]);		
 
-			if (!$archived_from_forum_id)
+			if (!$to_forum_id)
 			{
 				$omit_topics[] = $topic_id;
 				continue;
 			}
 
-			$org_forums[$forum_id][$topic_id] = $archived_from_forum_id;
- 		}
+			$org_forums[$forum_id][$topic_id] = $to_forum_id;
+
+			$move[$to_forum_id][] = $topic_id;
+		}
 
 		$this->db->sql_freeresult($result);
- 
-		trigger_error('OUFTI: ' . $action);  
+
+		if (!count($move))
+		{
+			trigger_error(cnst::L_MCP . '_NO_RESTORABLE_TOPICS');
+		}
+
+		if (confirm_box(true))
+		{
+			foreach ($move as $to_forum_id => $topic_ids)
+			{
+				move_topics($topic_ids, $to_forum_id, true);
+			}
+		}
+		else
+		{
+			$this->template->assign_vars([
+				'S_FORUM_SELECT'		=> make_forum_select($to_forum_id, $forum_id, false, true, true, true),
+				'ADDITIONAL_MSG'		=> $additional_msg,
+			]);
+
+			confirm_box(false, 'MOVE_TOPIC', $s_hidden_fields, 'confirm_topics_restore.html');
+		}
+
+		// the usual phpBB message
+	
+		$redirect = $request->variable('redirect', 'index.' . $this->php_ext);
+		$redirect = reapply_sid($redirect);
+	
+		if (!$success_msg)
+		{
+			redirect($redirect);
+		}
+		else
+		{
+			meta_refresh(3, $redirect);
+
+			$viewforum = $phpbb_root_path . 'viewforum.' . $this->php_ext;
+			$link_archive_forum = append_sid($viewforum, ['f' => $archive_id]);
+	
+			$message = $this->language->lang[$success_msg];
+			$message .= '<br /><br />';
+			$message .= sprintf($this->language->lang['RETURN_PAGE'], '<a href="' . $redirect . '">', '</a>');
+			$message .= '<br /><br />';
+			$message .= sprintf($this->language->lang['RETURN_FORUM'], '<a href="' . $link_archive_forum . '">', '</a>');
+	
+			trigger_error($message);
+		}
 	}
-
-
-
 }

@@ -103,18 +103,11 @@ class mcp_topic_listener implements EventSubscriberInterface
 
 		if (!$archive_id)
 		{
-			trigger_error('MCP_MARTTIPHPBB_ARCHIVEFORUM_NO_ARCHIVE_SET');
+			trigger_error(cnst::L_MCP . '_NO_ARCHIVE_SET');
 		}
 
 		$s_archive = $action === cnst::ARCHIVE_ACTION;
 
-		/** cancel button */
-/*
-		if ($this->request->variable('cancel', ''))
-		{
-			return;
-		}
-*/
 		/* adapted from mpc.php */	
 
 		$topic_id = $this->request->variable('t', 0);
@@ -150,7 +143,7 @@ class mcp_topic_listener implements EventSubscriberInterface
 
 			if (!$to_forum_id)
 			{			
-				trigger_error('MCP_MARTTIPHPBB_ARCHIVEFORUM_TOPIC_NOT_RESTORABLE');				
+				trigger_error(cnst::L_MCP . '_TOPIC_NOT_RESTORABLE');				
 			}
 		}
 
@@ -171,12 +164,12 @@ class mcp_topic_listener implements EventSubscriberInterface
 			]);
 		}
 
-		$message = 'MCP_MARTTIPHPBB_ARCHIVEFORUM_';
+		$message = cnst::L_MCP . '_';
 		$message .= $s_archive ? 'ARCHIVE' : 'RESTORE';
 		$message .= '_TOPIC';
 		$message .= count([$topic_id]) === 1 ? '' : 'S';
 
-		confirm_box(false, $message, $s_hidden_fields, '@marttiphpbb_archiveforum/confirm.html');
+		confirm_box(false, $message, $s_hidden_fields, cnst::TPL . 'confirm.html');
 	}
 
 	public function core_modify_quickmod_options(event $event)
@@ -214,14 +207,14 @@ class mcp_topic_listener implements EventSubscriberInterface
 		}
 
 		$quickmod_array[cnst::RESTORE_ACTION] = [
-			'MARTTIPHPBB_ARCHIVEFORUM_QUICKMOD_RESTORE', 
+			cnst::L . '_QUICKMOD_RESTORE', 
 			$forum_id == $archive_id
 				&& $this->auth->acl_get('m_move', $forum_id) 
 				&& $topic_data[cnst::FROM_FORUM_ID_COLUMN],
 		];
 
 		$quickmod_array[cnst::ARCHIVE_ACTION] = [
-			'MARTTIPHPBB_ARCHIVEFORUM_QUICKMOD_ARCHIVE',
+			cnst::L . '_QUICKMOD_ARCHIVE',
 			$forum_id != $archive_id
 				&& $this->auth->acl_get('m_move', $forum_id),
 		];
