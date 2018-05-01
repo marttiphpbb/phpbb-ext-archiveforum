@@ -158,8 +158,8 @@ class topic_listener implements EventSubscriberInterface
 		}
 
 		$this->template->assign_vars([
-			'MARTTIPHPBB_ARCHIVEFORUM_NAME'	=> $forum_name,
-			'U_MARTTIPHPBB_ARCHIVEFORUM'	=> append_sid($this->phpbb_root_path . 'viewforum.' . $this->php_ext, 'f=' . $org_forum_id),
+			cnst::L . '_NAME'	=> $forum_name,
+			'U_' . cnst::L		=> append_sid($this->phpbb_root_path . 'viewforum.' . $this->php_ext, 'f=' . $org_forum_id),
 		]);	
 	}
 }

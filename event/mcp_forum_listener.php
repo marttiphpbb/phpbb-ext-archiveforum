@@ -14,6 +14,8 @@ use phpbb\auth\auth;
 use phpbb\language\language;
 use phpbb\request\request;
 use phpbb\template\template;
+use phpbb\log\log;
+use phpbb\user;
 use marttiphpbb\archiveforum\util\cnst;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -24,6 +26,9 @@ class mcp_forum_listener implements EventSubscriberInterface
 
 	/** @var string */
 	private $topics_table;
+
+	/** @var string */
+	private $forums_table;
 
 	/** @var config */
 	private $config;
@@ -40,31 +45,58 @@ class mcp_forum_listener implements EventSubscriberInterface
 	/** @var template */
 	private $template;
 
+	/** @var string */
+	private $phpbb_rooth_path;
+
+	/** @var string */
+	private $php_ext;
+
+	/** @var log */
+	private $log;
+
+	/** @var user */
+	private $user;
+
 	/**
 	 * @param db
+	 * @param string
 	 * @param string
 	 * @param config
 	 * @param auth
 	 * @param language
 	 * @param template
+	 * @param string
+	 * @param string
+	 * @param log
+	 * @param user
 	*/
 	public function __construct(
 		db $db, 
 		string $topics_table, 
+		string $forums_table,
 		config $config, 
 		auth $auth,
 		language $language,
 		request $request,
-		template $template
+		template $template,
+		string $phpbb_root_path,
+		string $php_ext,
+		log $log,
+		user $user
 	)
 	{
 		$this->db = $db;
 		$this->topics_table = $topics_table;
+		$this->forums_table = $forums_table;
 		$this->config = $config;
 		$this->auth = $auth;
 		$this->language = $language;
 		$this->request = $request;
 		$this->template = $template;
+		$this->phpbb_root_path = $phpbb_root_path;
+		$this->php_ext = $php_ext;
+		$this->log = $log;
+		$this->user = $user;
 	}
 
 	static public function getSubscribedEvents()
@@ -185,9 +217,16 @@ class mcp_forum_listener implements EventSubscriberInterface
 
 	private function restore(array $topic_ids)
 	{
-		$org_forums = $omit_topics = $move = [];
+		$viewforum = $this->phpbb_root_path . 'viewforum.' . $this->php_ext;
+		$viewtopic = $this->phpbb_root_path . 'viewtopic.' . $this->php_ext;
+		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
+	
+		$omit_topics = $move_ids = [];
+		$topic_titles = $topic_urls = [];
+		$count_move_topics = 0;
 				
-		$sql = 'select topic_id, topic_title, forum_id, ' . cnst::FROM_FORUM_ID_COLUMN . ' 
+		$sql = 'select topic_id, topic_title, 
+				forum_id, ' . cnst::FROM_FORUM_ID_COLUMN . '
 			from ' . $this->topics_table . '
 			where ' . $this->db->sql_in_set('topic_id', $topic_ids);
 
@@ -195,14 +234,17 @@ class mcp_forum_listener implements EventSubscriberInterface
 
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$to_forum_id = $row[cnst::FROM_FORUM_ID_COLUMN];
-			$forum_id = $row['forum_id'];
+			if ($row['forum_id'] != $archive_id)
+			{
+				$this->db->sql_freeresult($result);				
+				trigger_error(cnst::L_MCP . '_RESTORE_TOPIC_NOT_IN_ARCHIVE');
+			}
+
+			$to_forum_id = $row[cnst::FROM_FORUM_ID_COLUMN];	
 			$topic_id = $row['topic_id'];
-			$topic_title = $row['topic_title'];
-			$topic_url = append_sid($this->phpbb_root_path . 'viewtopic.' . $this->php_ex, [
-				'f' => $forum_id, 
-				't' => $topic_id,
-			]);		
+
+			$forum_ids[$topic_id] = $row['forum_id'];
+			$topic_titles[$topic_id] = $row['topic_title'];
 
 			if (!$to_forum_id)
 			{
@@ -210,38 +252,134 @@ class mcp_forum_listener implements EventSubscriberInterface
 				continue;
 			}
 
-			$org_forums[$forum_id][$topic_id] = $to_forum_id;
-
-			$move[$to_forum_id][] = $topic_id;
+			$move_ids[$to_forum_id][] = $topic_id;
+			$count_move_topics++;
 		}
 
 		$this->db->sql_freeresult($result);
 
-		if (!count($move))
+		if (!count($move_ids))
 		{
 			trigger_error(cnst::L_MCP . '_NO_RESTORABLE_TOPICS');
 		}
 
+		$redirect = $this->request->variable('redirect', build_url(['action']));
+
+		$s_hidden_fields = build_hidden_fields([
+			'topic_id_list'	=> $topic_ids,
+			'move_ids'		=> $move_ids,
+			'action'		=> cnst::RESTORE_ACTION,
+			'redirect'		=> $redirect,
+		]);	
+
+		if ($this->request->variable('confirm', ''))
+		{
+			$confirmed_move_ids = $this->request->variable('move_ids', [0 => [0]]);
+
+			if ($confirmed_move_ids != $move_ids)
+			{
+				trigger_error(cnst::L_MCP . '_RESTORE_DATA_CHANGED');
+			}			
+		}	
+
 		if (confirm_box(true))
 		{
-			foreach ($move as $to_forum_id => $topic_ids)
+			foreach ($move_ids as $to_forum_id => $topic_ids)
 			{
 				move_topics($topic_ids, $to_forum_id, true);
+
+				foreach ($topic_ids as $topic_id)
+				{
+					// We add the $to_forum_id twice, because 'forum_id' is updated
+					// when the topic is moved again later.
+					// '<strong>Moved topic</strong><br />» from %1$s to %2$s',
+					$this->log->add(
+						'mod', 
+						$this->user->data['user_id'], 
+						$this->user->ip, 
+						'LOG_MOVE', 
+						false, 
+						[
+							'forum_id'		=> (int) $to_forum_id,
+							'topic_id'		=> (int) $topic_id,
+							$row['forum_name'],
+							$forum_data['forum_name'],
+							(int) $row['forum_id'],
+							(int) $forum_data['forum_id'],
+						]
+					);
+				}
 			}
+
+			$success_msg = cnst::L_MCP . '_TOPIC';
+			$success_msg .= $count_move_topics > 1 ? 'S' : '';
+			$success_msg .= '_RESTORED';
 		}
 		else
 		{
-			$this->template->assign_vars([
-				'S_FORUM_SELECT'		=> make_forum_select($to_forum_id, $forum_id, false, true, true, true),
-				'ADDITIONAL_MSG'		=> $additional_msg,
-			]);
+			$to_forum_ids = array_keys($move_ids);
+			$forum_names = [];
 
-			confirm_box(false, 'MOVE_TOPIC', $s_hidden_fields, 'confirm_topics_restore.html');
+			$sql = 'select forum_id, forum_name
+				from ' . $this->forums_table . '
+				where ' . $this->db->sql_in_set('forum_id', $to_forum_ids);
+
+			$result = $this->db->sql_query($sql);
+
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				$forum_names[$row['forum_id']] = $row['forum_name'];
+			}
+
+			$this->db->sql_freeresult($result);
+
+			foreach ($move_ids as $to_forum_id => $topic_ids)
+			{
+				$forum_link = append_sid($viewforum, [
+					'f'	=> $to_forum_id,
+				]);
+			
+				$this->template->assign_block_vars('to_forums', [
+					'FORUM_LINK'	=> $forum_link,
+					'FORUM_NAME'	=> $forum_names[$to_forum_id],
+				]);
+
+				foreach($topic_ids as $topic_id)
+				{
+					$topic_link = append_sid($viewtopic, [
+						't'	=> $topic_id,
+						'f'	=> $forum_ids[$topic_id],
+					]);
+
+					$this->template->assign_block_vars('to_forums.topics', [
+						'TOPIC_LINK'	=> $topic_link,
+						'TOPIC_TITLE'	=> $topic_titles[$topic_id],
+					]);
+				}
+			}
+
+			foreach ($omit_topics as $topic_id)
+			{
+				$topic_link = append_sid($viewtopic, [
+					't'	=> $topic_id,
+					'f'	=> $forum_ids[$topic_id],
+				]);
+
+				$this->template->assign_block_vars('omit_topics', [
+					'TOPIC_LINK'	=> $topic_link,
+					'TOPIC_TITLE'	=> $topic_titles[$topic_id],
+				]);
+			}
+
+			$msg = cnst::L_MCP . '_RESTORE_TOPIC';
+			$msg .= $count_move_topics > 1 ? 'S' : '';
+
+			confirm_box(false, $msg, $s_hidden_fields, cnst::TPL . 'confirm_topics_restore.html');
 		}
 
 		// the usual phpBB message
 	
-		$redirect = $request->variable('redirect', 'index.' . $this->php_ext);
+		$redirect = $this->request->variable('redirect', 'index.' . $this->php_ext);
 		$redirect = reapply_sid($redirect);
 	
 		if (!$success_msg)
@@ -252,14 +390,13 @@ class mcp_forum_listener implements EventSubscriberInterface
 		{
 			meta_refresh(3, $redirect);
 
-			$viewforum = $phpbb_root_path . 'viewforum.' . $this->php_ext;
 			$link_archive_forum = append_sid($viewforum, ['f' => $archive_id]);
 	
-			$message = $this->language->lang[$success_msg];
+			$message = $this->language->lang($success_msg);
 			$message .= '<br /><br />';
-			$message .= sprintf($this->language->lang['RETURN_PAGE'], '<a href="' . $redirect . '">', '</a>');
+			$message .= sprintf($this->language->lang('RETURN_PAGE'), '<a href="' . $redirect . '">', '</a>');
 			$message .= '<br /><br />';
-			$message .= sprintf($this->language->lang['RETURN_FORUM'], '<a href="' . $link_archive_forum . '">', '</a>');
+			$message .= sprintf($this->language->lang(cnst::L_MCP . '_RETURN_ARCHIVE_FORUM'), '<a href="' . $link_archive_forum . '">', '</a>');
 	
 			trigger_error($message);
 		}

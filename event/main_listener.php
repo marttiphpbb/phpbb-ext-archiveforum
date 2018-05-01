@@ -8,6 +8,7 @@
 namespace marttiphpbb\archiveforum\event;
 
 use phpbb\event\data as event;
+use marttiphpbb\archiveforum\util\cnst;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -30,7 +31,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		$lang_set_ext = $event['lang_set_ext'];
 		$lang_set_ext[] = [
-			'ext_name' => 'marttiphpbb/archiveforum',
+			'ext_name' => cnst::FOLDER,
 			'lang_set' => 'common',
 		];
 		$event['lang_set_ext'] = $lang_set_ext;

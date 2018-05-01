@@ -311,8 +311,8 @@ class topiclist_listener implements EventSubscriberInterface
 		}
 
 		return [
-			'MARTTIPHPBB_ARCHIVEFORUM_NAME'	=> $this->forum_names[$org_forum_id],
-			'U_MARTTIPHPBB_ARCHIVEFORUM'	=> append_sid($this->phpbb_root_path . 'viewforum.' . $this->php_ext, 'f=' . $org_forum_id),
+			cnst::L . '_NAME'	=> $this->forum_names[$org_forum_id],
+			'U_' . cnst::L		=> append_sid($this->phpbb_root_path . 'viewforum.' . $this->php_ext, 'f=' . $org_forum_id),
 		];		
 	}
 }

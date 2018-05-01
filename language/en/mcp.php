@@ -17,6 +17,7 @@ if (empty($lang) || !is_array($lang))
 }
 
 $lang = array_merge($lang, [
+
 	'MCP_MARTTIPHPBB_ARCHIVEFORUM_NO_ARCHIVE_SET'
 		=> 'No Archive Forum has been set in the ACP',
 	'MCP_MARTTIPHPBB_ARCHIVEFORUM_TOPIC_NOT_RESTORABLE'
@@ -44,5 +45,21 @@ $lang = array_merge($lang, [
 	'MCP_MARTTIPHPBB_ARCHIVEFORUM_RESTORE_TOPICS_CONFIRM'
 		=> 'Do you want to restore the archived topics back to their original forum?',
 	'MCP_MARTTIPHPBB_ARCHIVEFORUM_RETURN_ARCHIVE_FORUM'
-		=> 'Return to the %sarchive forum%s.'
+		=> 'Return to the %sarchive forum%s.',
+	'MCP_MARTTIPHPBB_ARCHIVEFORUM_RESTORE_DATA_CHANGED'
+		=> 'The restore could not be performed, because data changed for at least one topic.',
+	'MCP_MARTTIPHPBB_ARCHIVEFORUM_TOPIC_RESTORED'
+		=> 'The topic has been restored from archive to its original forum.',	
+	'MCP_MARTTIPHPBB_ARCHIVEFORUM_TOPICS_RESTORED'
+		=> 'The topics have been restored from archive to their original forum.',
+	'MCP_MARTTIPHPBB_ARCHIVEFORUM_RESTORE_TOPIC_OMITTED'
+		=> 'This topic cannot be restored from archive (the original forum is unknown):',
+	'MCP_MARTTIPHPBB_ARCHIVEFORUM_RESTORE_TOPICS_OMITTED'
+		=> 'These topics cannot be restored from archive (the original forum is unknown):',
+	'MCP_MARTTIPHPBB_ARCHIVEFORUM_RESTORE_TOPIC_NOT_IN_ARCHIVE'
+		=> 'Error: one topic to be restored is not in the archive forum.',
+	'MCP_MARTTIPHPBB_ARCHIVEFORUM_TOPIC_RESTORE_TO_FORUM'
+		=> 'This topic will be restored to <a href="%1$s">%2$s</a>:',
+	'MCP_MARTTIPHPBB_ARCHIVEFORUM_TOPICS_RESTORE_TO_FORUM'
+		=> 'These topics will be restored to <a href="%1$s">%2$s</a>:',
 ]);

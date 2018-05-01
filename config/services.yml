@@ -49,11 +49,16 @@ services:
         arguments:
             - '@dbal.conn'
             - '%tables.topics%'
+            - '%tables.forums%'
             - '@config'
             - '@auth'
             - '@language'
             - '@request'
             - '@template'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+            - '@log'
+            - '@user'
         tags:
             - { name: event.listener }
 

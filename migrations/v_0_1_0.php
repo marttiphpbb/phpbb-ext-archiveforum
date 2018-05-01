@@ -18,12 +18,12 @@ class v_0_1_0 extends \phpbb\db\migration\migration
 			['module.add', [
 				'acp',
 				'ACP_CAT_DOT_MODS',
-				'ACP_MARTTIPHPBB_ARCHIVEFORUM',
+				cnst::L_ACP,
 			]],
 
 			['module.add', [
 				'acp',
-				'ACP_MARTTIPHPBB_ARCHIVEFORUM',
+				cnst::L_ACP,
 				[
 					'module_basename'	=> '\marttiphpbb\archiveforum\acp\main_module',
 					'modes'				=> [

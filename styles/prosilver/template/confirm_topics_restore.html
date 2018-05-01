@@ -1,18 +1,10 @@
 {%- if S_AJAX_REQUEST -%}
 
 <h3>{{- MESSAGE_TITLE -}}</h3>
+
 <p>{{ -MESSAGE_TEXT -}}</p>
 
-{%- if ADDITIONAL_MSG -%}
-    <p>{{- ADDITIONAL_MSG -}}</p>
-{%- endif -%}
-
-{%- if S_CAN_LEAVE_SHADOW -%}
-    <label for="move_leave_shadow">
-        <input type="checkbox" name="move_leave_shadow" id="move_leave_shadow" />
-            {{- lang('LEAVE_SHADOW') -}}
-    </label>
-{%- endif -%}
+{%- include '@marttiphpbb_archiveforum/include/restore_topics.html' -%}
 
 <fieldset class="submit-buttons">
     <input type="button" name="confirm" value="{{- YES_VALUE -}}" class="button1" />&nbsp;
@@ -29,23 +21,10 @@
 
 <div class="content">
     <h2 class="message-title">{{- MESSAGE_TITLE -}}</h2>
-    {%- if ADDITIONAL_MSG -%}
-        <p>{{- ADDITIONAL_MSG -}}</p>
-    {%- endif -%}
+
+    {%- include '@marttiphpbb_archiveforum/include/restore_topics.html' -%}
 
     <fieldset>
-    <dl class="fields2">
-
-        {%- if S_CAN_LEAVE_SHADOW -%}
-            <dd>
-                <label for="move_leave_shadow">
-                    <input type="checkbox" name="move_leave_shadow" id="move_leave_shadow" />
-                        {{- lang('LEAVE_SHADOW') -}}
-                </label>
-            </dd>
-        {%- endif -%}
-
-    </dl>
     <dl class="fields2">
         <dt>&nbsp;</dt>
         <dd><strong>{{- MESSAGE_TEXT -}}</strong></dd>

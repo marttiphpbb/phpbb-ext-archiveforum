@@ -1,0 +1,41 @@
+{%- if omit_topics -%}
+<fieldset>
+<strong>
+    {%- if omit_topics|length > 1 -%}
+        {{- lang('MCP_MARTTIPHPBB_ARCHIVEFORUM_RESTORE_TOPICS_OMITTED') -}}
+    {%- else -%}
+        {{- lang('MCP_MARTTIPHPBB_ARCHIVEFORUM_RESTORE_TOPIC_OMITTED') -}}
+    {%- endif -%}
+</strong>
+<ul>
+    {%- for o in omit_topics -%}
+        <li>
+            <a href="{{- o.TOPIC_LINK -}}">
+                {{- o.TOPIC_TITLE -}}
+            </a>
+        </li>
+    {%- endfor -%}
+</ul>
+</fieldset>
+{%- endif -%}
+
+<fieldset>
+{%- for f in to_forums -%}
+<strong>
+    {%- if f.topics|length > 1 -%}
+        {{- lang('MCP_MARTTIPHPBB_ARCHIVEFORUM_TOPICS_RESTORE_TO_FORUM', f.FORUM_LINK, f.FORUM_NAME) -}}
+    {%- else -%}
+        {{- lang('MCP_MARTTIPHPBB_ARCHIVEFORUM_TOPIC_RESTORE_TO_FORUM', f.FORUM_LINK, f.FORUM_NAME) -}}
+    {%- endif -%}
+</strong>
+<ul>
+    {%- for t in f.topics -%}
+        <li>
+            <a href="{{- t.TOPIC_LINK -}}">
+                {{- t.TOPIC_TITLE -}}
+            </a>
+        </li>
+    {%- endfor -%}
+</ul>
+{%- endfor -%}
+</fieldset>
