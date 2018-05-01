@@ -7,18 +7,20 @@
 
 namespace marttiphpbb\archiveforum\acp;
 
+use marttiphpbb\archiveforum\util\cnst;
+
 class main_info
 {
 	function module()
 	{
 		return [
 			'filename'	=> '\marttiphpbb\archiveforum\acp\main_module',
-			'title'		=> 'ACP_MARTTIPHPBB_ARCHIVEFORUM',
+			'title'		=> cnst::L_ACP,
 			'modes'		=> [			
 				'select_forum'	=> [
-					'title'	=> 'ACP_MARTTIPHPBB_ARCHIVEFORUM_SELECT',
+					'title'	=> cnst::L_ACP . '_SELECT',
 					'auth'	=> 'ext_marttiphpbb/archiveforum && acl_a_board',
-					'cat'	=> ['ACP_MARTTIPHPBB_ARCHIVEFORUM'],
+					'cat'	=> [cnst::L_ACP],
 				],			
 			],
 		];

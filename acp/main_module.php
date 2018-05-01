@@ -7,6 +7,8 @@
 
 namespace marttiphpbb\archiveforum\acp;
 
+use marttiphpbb\archiveforum\util\cnst;
+
 class main_module
 {
 	var $u_action;
@@ -20,26 +22,26 @@ class main_module
 		$config = $phpbb_container->get('config');
 		$language = $phpbb_container->get('language');
 	
-		$language->add_lang('acp', 'marttiphpbb/archiveforum');
-		add_form_key('marttiphpbb/archiveforum');
+		$language->add_lang('acp', cnst::FOLDER);
+		add_form_key(cnst::FOLDER);
 
 		switch($mode)
 		{
 			case 'select_forum':
 
 				$this->tpl_name = 'select_forum';
-				$this->page_title = $language->lang('ACP_MARTTIPHPBB_ARCHIVEFORUM_SELECT');
+				$this->page_title = $language->lang(cnst::L_ACP . '_SELECT');
 
 				if ($request->is_set_post('submit'))
 				{
-					if (!check_form_key('marttiphpbb/archiveforum'))
+					if (!check_form_key(cnst::FOLDER))
 					{
 						trigger_error('FORM_INVALID');
 					}
 
-					$config->set('marttiphpbb_archiveforum_id', $request->variable('marttiphpbb_archiveforum_id', 0));				
+					$config->set(cnst::CONFIG_ARCHIVE_ID, $request->variable(cnst::CONFIG_ARCHIVE_ID, 0));				
 
-					trigger_error($language->lang('ACP_MARTTIPHPBB_ARCHIVEFORUM_SETTING_SAVED') . adm_back_link($this->u_action));
+					trigger_error($language->lang(cnst::L_ACP . '_SETTING_SAVED') . adm_back_link($this->u_action));
 				}
 
 				$cforums = make_forum_select(false, false, false, false, true, false, true);
@@ -54,7 +56,7 @@ class main_module
 					]);
 				}
 
-				$template->assign_var('MARTTIPHPBB_ARCHIVEFORUM_ID', $config['marttiphpbb_archiveforum_id']);
+				$template->assign_var(cnst::L . '_ID', $config[cnst::CONFIG_ARCHIVE_ID]);
 	
 				break;
 		}

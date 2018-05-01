@@ -13,7 +13,7 @@ class cnst
 	const ID = 'marttiphpbb_archiveforum';
 	const PREFIX = self::ID . '_';
 	const CONFIG_ARCHIVE_ID = self::PREFIX . 'id';
-	const FROM_FORUM_ID_COLUMN = 'marttiphpbb_archived_from_fid';
+	const FROM_FORUM_ID_COLUMN = 'marttiphpbb_from_forum_id';
 	const ARCHIVE_ACTION = self::PREFIX . 'archive';
 	const RESTORE_ACTION = self::PREFIX . 'restore';
 	const L = 'MARTTIPHPBB_ARCHIVEFORUM';
