@@ -7,9 +7,9 @@ phpBB 3.2+ PHP 7+
 ## Features
 
 With this extension you define one forum as the "Archive" for obsolete topics.
-In the "Archive forum" the orginating forum is shown below the title of each topic.
+In the "Archive forum" the original forum is shown below the title of each topic.
 Two moderator actions are provided "Archive" and "Restore". They depend on the same permission as "Move"(topics).
-Note that you still have to set yourself the appropriate permissions for the "Archive Forum". Normal users should not be able to post in there.
+Note that you still have to set yourself the appropriate permissions for the "Archive Forum" and give it a proper name (suggestion: "Archive"). Normal users should not be able to post in there.
 
 ## Screenshots
 
