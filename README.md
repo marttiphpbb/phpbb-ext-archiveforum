@@ -17,35 +17,35 @@ Note that you still have to set yourself the appropriate permissions for the "Ar
 
 ### Archived Topic
 
-![Archived Topic](archived_topic.png)
+![Archived Topic](doc/archived_topic.png)
 
 ### Archive Forum
 
-![Archive Forum](archive_forum.png)
+![Archive Forum](doc/archive_forum.png)
 
 ### Confirm Archive
 
-![Confirm Archive](confirm_archive.png)
+![Confirm Archive](doc/confirm_archive.png)
 
 ### Confirm Restore
 
-![Confirm Restore](confirm_restore.png)
+![Confirm Restore](doc/confirm_restore.png)
 
 ### MCP Forum
 
-![MCP Forum](mcp_forum.png)
+![MCP Forum](doc/mcp_forum.png)
 
 ### MCP Topic
 
-![MCP Topic](mcp_topic.png)
+![MCP Topic](doc/mcp_topic.png)
 
 ### Quickmod
 
-![Quickmod](quickmod.png)
+![Quickmod](doc/quickmod.png)
 
 ### ACP
 
-![ACP](acp.png)
+![ACP](doc/acp.png)
 
 ## Quick Install
 
