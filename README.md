@@ -15,6 +15,38 @@ Note that you still have to set yourself the appropriate permissions for the "Ar
 
 ## Screenshots
 
+### Archived Topic
+
+![Archived Topic](archived_topic.png)
+
+### Archive Forum
+
+![Archive Forum](archive_forum.png)
+
+### Confirm Archive
+
+![Confirm Archive](confirm_archive.png)
+
+### Confirm Restore
+
+![Confirm Restore](confirm_restore.png)
+
+### MCP Forum
+
+![MCP Forum](mcp_forum.png)
+
+### MCP Topic
+
+![MCP Topic](mcp_topic.png)
+
+### Quickmod
+
+![Quickmod](quickmod.png)
+
+### ACP
+
+![ACP](acp.png)
+
 ## Quick Install
 
 You can install this on the latest release of phpBB 3.2 by following the steps below:
