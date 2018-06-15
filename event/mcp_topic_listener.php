@@ -19,39 +19,18 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class mcp_topic_listener implements EventSubscriberInterface
 {
-	/** @var db */
-	private $db;
+	protected $db;
+	protected $topics_table;
+	protected $config;
+	protected $auth;
+	protected $language;
+	protected $request;
+	protected $template;
 
-	/** @var string */
-	private $topics_table;
-
-	/** @var config */
-	private $config;
-
-	/** @var auth */
-	private $auth;
-
-	/** @var language */
-	private $language;
-
-	/** @var request */
-	private $request;
-
-	/** @var template */
-	private $template;
-
-	/**
-	 * @param db
-	 * @param string
-	 * @param config
-	 * @param auth
-	 * @param language
-	 * @param template
-	*/
 	public function __construct(
-		db $db, 
-		string $topics_table, 
-		config $config, 
+		db $db,
+		string $topics_table,
+		config $config,
 		auth $auth,
 		language $language,
 		request $request,
@@ -108,13 +87,13 @@ class mcp_topic_listener implements EventSubscriberInterface
 
 		$s_archive = $action === cnst::ARCHIVE_ACTION;
 
-		/* adapted from mpc.php */	
+		/* adapted from mpc.php */
 
 		$topic_id = $this->request->variable('t', 0);
 
 		if (!$topic_id)
 		{
-			$this->language->add_lang('viewtopic');			
+			$this->language->add_lang('viewtopic');
 			trigger_error('NO_TOPIC_SELECTED');
 		}
 
@@ -131,19 +110,19 @@ class mcp_topic_listener implements EventSubscriberInterface
 		}
 		else
 		{
-			$sql = 'select ' . cnst::FROM_FORUM_ID_COLUMN . ' 
+			$sql = 'select ' . cnst::FROM_FORUM_ID_COLUMN . '
 				from ' . $this->topics_table . '
 				where topic_id = ' . $topic_id;
-		
+
 			$result = $this->db->sql_query($sql);
-	
+
 			$to_forum_id = $this->db->sql_fetchfield(cnst::FROM_FORUM_ID_COLUMN);
 
 			$this->db->sql_freeresult($result);
 
 			if (!$to_forum_id)
-			{			
-				trigger_error(cnst::L_MCP . '_TOPIC_NOT_RESTORABLE');				
+			{
+				trigger_error(cnst::L_MCP . '_TOPIC_NOT_RESTORABLE');
 			}
 		}
 
@@ -207,9 +186,9 @@ class mcp_topic_listener implements EventSubscriberInterface
 		}
 
 		$quickmod_array[cnst::RESTORE_ACTION] = [
-			cnst::L . '_QUICKMOD_RESTORE', 
+			cnst::L . '_QUICKMOD_RESTORE',
 			$forum_id == $archive_id
-				&& $this->auth->acl_get('m_move', $forum_id) 
+				&& $this->auth->acl_get('m_move', $forum_id)
 				&& $topic_data[cnst::FROM_FORUM_ID_COLUMN],
 		];
 

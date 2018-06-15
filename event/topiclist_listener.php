@@ -16,47 +16,21 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class topiclist_listener implements EventSubscriberInterface
 {
-	/** @var db */
-	private $db;
+	protected $db;
+	protected $topics_table;
+	protected $forums_table;
+	protected $config;
+	protected $auth;
+	protected $phpbb_root_path;
+	protected $php_ext;
+	protected $topics_org_forums = [];
+	protected $forum_names = [];
 
-	/** @var string */
-	private $topics_table;
-
-	/** @var string */
-	private $forums_table;
-
-	/** @var config */
-	private $config;
-
-	/** @var auth */
-	private $auth;
-
-	/** @var string */
-	private $phpbb_root_path;
-
-	/** @var string */
-	private $php_ext;
-
-	/** @var array */
-	private $topics_org_forums = [];
-
-	/** @var array */
-	private $forum_names = [];
-
-	/**
-	 * @param db
-	 * @param string
-	 * @param string
-	 * @param config
-	 * @param auth
-	 * @param string
-	 * @param string 
-	*/
 	public function __construct(
-		db $db, 
-		string $topics_table, 
+		db $db,
+		string $topics_table,
 		string $forums_table,
-		config $config, 
+		config $config,
 		auth $auth,
 		string $phpbb_root_path,
 		string $php_ext
@@ -130,7 +104,7 @@ class topiclist_listener implements EventSubscriberInterface
 		$row = $event['row'];
 		$tpl_ary = $event['tpl_ary'];
 		$tpl_ary = array_merge($tpl_ary, $this->get_row_template_vars($row));
-		$event['tpl_ary'] = $tpl_ary;		
+		$event['tpl_ary'] = $tpl_ary;
 	}
 
 	public function core_mcp_view_forum_modify_sql(event $event)
@@ -172,14 +146,14 @@ class topiclist_listener implements EventSubscriberInterface
 			if (!$this->auth->acl_get('f_list', $org_forum_id))
 			{
 				continue;
-			}			
+			}
 
 			$this->topics_org_forums[$topic_id] = $org_forum_id;
 		}
 		$this->db->sql_freeresult($result);
 
 		$this->forum_names = $this->get_forum_names_and_cleanup_deleted($org_forums);
-	} 
+	}
 
 	public function core_mcp_view_forum_modify_topicrow(event $event)
 	{
@@ -273,9 +247,9 @@ class topiclist_listener implements EventSubscriberInterface
 		if (count($deleted_forums))
 		{
 			$sql = 'update ' . $this->topics_table . '
-				set ' . cnst::FROM_FORUM_ID_COLUMN . ' = 0 
+				set ' . cnst::FROM_FORUM_ID_COLUMN . ' = 0
 				where ' . $this->db->sql_in_set(cnst::FROM_FORUM_ID_COLUMN, $deleted_forums);
-	
+
 			$this->db->sql_query($sql);
 
 			foreach($deleted_forums as $deleted_forum_id)
@@ -313,6 +287,6 @@ class topiclist_listener implements EventSubscriberInterface
 		return [
 			cnst::L . '_NAME'	=> $this->forum_names[$org_forum_id],
 			'U_' . cnst::L		=> append_sid($this->phpbb_root_path . 'viewforum.' . $this->php_ext, 'f=' . $org_forum_id),
-		];		
+		];
 	}
 }

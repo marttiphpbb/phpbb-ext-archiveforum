@@ -21,60 +21,24 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class mcp_forum_listener implements EventSubscriberInterface
 {
-	/** @var db */
-	private $db;
+	protected $db;
+	protected $topics_table;
+	protected $forums_table;
+	protected $config;
+	protected $auth;
+	protected $language;
+	protected $request;
+	protected $template;
+	protected $phpbb_rooth_path;
+	protected $php_ext;
+	protected $log;
+	protected $user;
 
-	/** @var string */
-	private $topics_table;
-
-	/** @var string */
-	private $forums_table;
-
-	/** @var config */
-	private $config;
-
-	/** @var auth */
-	private $auth;
-
-	/** @var language */
-	private $language;
-
-	/** @var request */
-	private $request;
-
-	/** @var template */
-	private $template;
-
-	/** @var string */
-	private $phpbb_rooth_path;
-
-	/** @var string */
-	private $php_ext;
-
-	/** @var log */
-	private $log;
-
-	/** @var user */
-	private $user;
-
-	/**
-	 * @param db
-	 * @param string
-	 * @param string
-	 * @param config
-	 * @param auth
-	 * @param language
-	 * @param template
-	 * @param string
-	 * @param string
-	 * @param log
-	 * @param user
-	*/
 	public function __construct(
-		db $db, 
-		string $topics_table, 
+		db $db,
+		string $topics_table,
 		string $forums_table,
-		config $config, 
+		config $config,
 		auth $auth,
 		language $language,
 		request $request,
@@ -145,7 +109,7 @@ class mcp_forum_listener implements EventSubscriberInterface
 		}
 
 		if (!in_array($action,[
-			cnst::ARCHIVE_ACTION, 
+			cnst::ARCHIVE_ACTION,
 			cnst::RESTORE_ACTION,
 		]))
 		{
@@ -164,7 +128,7 @@ class mcp_forum_listener implements EventSubscriberInterface
 		$s_archive = $action === cnst::ARCHIVE_ACTION;
 
 		$topic_ids = $this->request->variable('topic_id_list', [0]);
-		
+
 		if (!count($topic_ids))
 		{
 			trigger_error('NO_TOPIC_SELECTED');
@@ -184,7 +148,7 @@ class mcp_forum_listener implements EventSubscriberInterface
 		{
 			mcp_move_topic([$topic_id]);
 		}
-	
+
 		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
 
 		// The operation is limited to one forum
@@ -220,12 +184,12 @@ class mcp_forum_listener implements EventSubscriberInterface
 		$viewforum = $this->phpbb_root_path . 'viewforum.' . $this->php_ext;
 		$viewtopic = $this->phpbb_root_path . 'viewtopic.' . $this->php_ext;
 		$archive_id = $this->config[cnst::CONFIG_ARCHIVE_ID];
-	
+
 		$omit_topics = $move_ids = [];
 		$topic_titles = $topic_urls = [];
 		$count_move_topics = 0;
-				
-		$sql = 'select topic_id, topic_title, 
+
+		$sql = 'select topic_id, topic_title,
 				forum_id, ' . cnst::FROM_FORUM_ID_COLUMN . '
 			from ' . $this->topics_table . '
 			where ' . $this->db->sql_in_set('topic_id', $topic_ids);
@@ -236,11 +200,11 @@ class mcp_forum_listener implements EventSubscriberInterface
 		{
 			if ($row['forum_id'] != $archive_id)
 			{
-				$this->db->sql_freeresult($result);				
+				$this->db->sql_freeresult($result);
 				trigger_error(cnst::L_MCP . '_RESTORE_TOPIC_NOT_IN_ARCHIVE');
 			}
 
-			$to_forum_id = $row[cnst::FROM_FORUM_ID_COLUMN];	
+			$to_forum_id = $row[cnst::FROM_FORUM_ID_COLUMN];
 			$topic_id = $row['topic_id'];
 
 			$forum_ids[$topic_id] = $row['forum_id'];
@@ -270,7 +234,7 @@ class mcp_forum_listener implements EventSubscriberInterface
 			'move_ids'		=> $move_ids,
 			'action'		=> cnst::RESTORE_ACTION,
 			'redirect'		=> $redirect,
-		]);	
+		]);
 
 		if ($this->request->variable('confirm', ''))
 		{
@@ -279,15 +243,15 @@ class mcp_forum_listener implements EventSubscriberInterface
 			if ($confirmed_move_ids != $move_ids)
 			{
 				trigger_error(cnst::L_MCP . '_RESTORE_DATA_CHANGED');
-			}			
+			}
 		}
-		
+
 		$to_forum_ids = array_keys($move_ids);
 		$forum_names = [];
 
 		$sql = 'select forum_id, forum_name
 			from ' . $this->forums_table . '
-			where ' . $this->db->sql_in_set('forum_id', 
+			where ' . $this->db->sql_in_set('forum_id',
 				array_merge($to_forum_ids, [$archive_id]));
 
 		$result = $this->db->sql_query($sql);
@@ -308,11 +272,11 @@ class mcp_forum_listener implements EventSubscriberInterface
 				foreach ($topic_ids as $topic_id)
 				{
 					$this->log->add(
-						'mod', 
-						$this->user->data['user_id'], 
-						$this->user->ip, 
-						'LOG_MOVE', 
-						false, 
+						'mod',
+						$this->user->data['user_id'],
+						$this->user->ip,
+						'LOG_MOVE',
+						false,
 						[
 							'forum_id'		=> (int) $to_forum_id,
 							'topic_id'		=> (int) $topic_id,
@@ -336,7 +300,7 @@ class mcp_forum_listener implements EventSubscriberInterface
 				$forum_link = append_sid($viewforum, [
 					'f'	=> $to_forum_id,
 				]);
-			
+
 				$this->template->assign_block_vars('to_forums', [
 					'FORUM_LINK'	=> $forum_link,
 					'FORUM_NAME'	=> $forum_names[$to_forum_id],
@@ -376,10 +340,10 @@ class mcp_forum_listener implements EventSubscriberInterface
 		}
 
 		// the usual phpBB message
-	
+
 		$redirect = $this->request->variable('redirect', 'index.' . $this->php_ext);
 		$redirect = reapply_sid($redirect);
-	
+
 		if (!$success_msg)
 		{
 			redirect($redirect);
@@ -389,13 +353,13 @@ class mcp_forum_listener implements EventSubscriberInterface
 			meta_refresh(3, $redirect);
 
 			$link_archive_forum = append_sid($viewforum, ['f' => $archive_id]);
-	
+
 			$message = $this->language->lang($success_msg);
 			$message .= '<br /><br />';
 			$message .= sprintf($this->language->lang('RETURN_PAGE'), '<a href="' . $redirect . '">', '</a>');
 			$message .= '<br /><br />';
 			$message .= sprintf($this->language->lang(cnst::L_MCP . '_RETURN_ARCHIVE_FORUM'), '<a href="' . $link_archive_forum . '">', '</a>');
-	
+
 			trigger_error($message);
 		}
 	}

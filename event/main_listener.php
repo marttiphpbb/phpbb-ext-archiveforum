@@ -9,17 +9,10 @@ namespace marttiphpbb\archiveforum\event;
 
 use phpbb\event\data as event;
 use marttiphpbb\archiveforum\util\cnst;
-
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class main_listener implements EventSubscriberInterface
 {
-	/**
-	*/
-	public function __construct()
-	{
-	}
-
 	static public function getSubscribedEvents()
 	{
 		return [

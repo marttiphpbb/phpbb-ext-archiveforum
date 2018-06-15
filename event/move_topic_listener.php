@@ -10,23 +10,15 @@ namespace marttiphpbb\archiveforum\event;
 use phpbb\event\data as event;
 use phpbb\db\driver\factory as db;
 use marttiphpbb\archiveforum\util\cnst;
-
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class move_topic_listener implements EventSubscriberInterface
 {
-	/** @var db */
 	private $db;
-
-	/** @var string */
 	private $topics_table;
 
-	/**
-	 * @param db
-	 * @param string
-	*/
 	public function __construct(
-		db $db, 
+		db $db,
 		string $topics_table
 	)
 	{
@@ -47,7 +39,7 @@ class move_topic_listener implements EventSubscriberInterface
 
 		// we store the forum id where the topic came from.
 		$sql = 'update ' . $this->topics_table . '
-			set ' . cnst::FROM_FORUM_ID_COLUMN . ' = forum_id 
+			set ' . cnst::FROM_FORUM_ID_COLUMN . ' = forum_id
 			where ' . $this->db->sql_in_set('topic_id', $topic_ids);
 		$this->db->sql_query($sql);
 	}
