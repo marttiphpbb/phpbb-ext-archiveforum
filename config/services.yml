@@ -1,4 +1,11 @@
 services:
+    marttiphpbb.archiveforum.calendarautoarchive_listener:
+        class: marttiphpbb\archiveforum\event\calendarautoarchive_listener
+        arguments:
+            - '@config'
+        tags:
+            - { name: event.listener }
+
     marttiphpbb.archiveforum.topiclist_listener:
         class: marttiphpbb\archiveforum\event\topiclist_listener
         arguments:
@@ -68,4 +75,4 @@ services:
             - '@dbal.conn'
             - '%tables.topics%'
         tags:
-            - { name: event.listener }            
+            - { name: event.listener }
